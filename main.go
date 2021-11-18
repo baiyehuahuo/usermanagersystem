@@ -1,19 +1,31 @@
 package main
 
 import (
-	"UserManageSystem/service/html"
-	"UserManageSystem/service/login"
+	"log"
+	"usermanagersystem/service/html"
+	"usermanagersystem/service/login"
+	"usermanagersystem/utils/configReader"
+	"usermanagersystem/utils/database"
 
 	"github.com/gin-gonic/gin"
 )
 
 func main() {
+
+	if err := configReader.ConfigRead(); err != nil {
+		log.Fatal(err)
+	}
+	//fmt.Println(configReader.Config)
+	if err := database.ConnectDatabase(); err != nil {
+		log.Fatal(err)
+	}
+	//fmt.Println(database.DB)
 	router := gin.Default()
 	htmlManager := html.New()
 	loginManager := login.New()
 	router.LoadHTMLGlob("templates/*")   // html 文件
 	router.Static("/static", "./static") // 静态文件映射
 	router.GET("/", htmlManager.ToLogin)
-	router.GET("/HelloWorld", loginManager.UserLogin)
+	router.GET("/UserLogin", loginManager.UserLogin)
 	router.Run()
 }
