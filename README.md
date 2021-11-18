@@ -10,3 +10,4 @@
 3. `static` 前端调用资源
 4. `templates` 前端 `html` 页面资源点
 5. `utils` 各包通用内容
+6. `configs` 配置文件、一次性执行 `sql` 文件 etc……

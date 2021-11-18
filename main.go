@@ -15,11 +15,9 @@ func main() {
 	if err := configReader.ConfigRead(); err != nil {
 		log.Fatal(err)
 	}
-	//fmt.Println(configReader.Config)
 	if err := database.ConnectDatabase(); err != nil {
 		log.Fatal(err)
 	}
-	//fmt.Println(database.DB)
 	router := gin.Default()
 	htmlManager := html.New()
 	loginManager := login.New()
