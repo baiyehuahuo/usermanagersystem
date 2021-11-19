@@ -4,6 +4,7 @@ import (
 	"crypto/md5"
 	"fmt"
 	"net/http"
+	"usermanagersystem/consts"
 	"usermanagersystem/model"
 	"usermanagersystem/utils/database"
 
@@ -22,9 +23,9 @@ func (login *loginManagerImpl) UserLogin(c *gin.Context) {
 	}
 
 	if err := database.DB.Where(&user).Take(&user).Error; err == gorm.ErrRecordNotFound {
-		c.JSON(http.StatusInternalServerError, "LoginFail")
+		c.JSON(http.StatusInternalServerError, consts.LoginFail)
 		return
 	}
 
-	c.JSON(http.StatusOK, "success")
+	c.JSON(http.StatusOK, consts.LoginSuccess)
 }

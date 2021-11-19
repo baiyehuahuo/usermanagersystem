@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"usermanagersystem/consts"
 	"usermanagersystem/model"
 	"usermanagersystem/utils/database"
 
@@ -21,8 +22,8 @@ func (regeditManager regeditManagerImpl) UserRegedit(c *gin.Context) {
 	}
 	if err := database.DB.Create(&user).Error; err != nil {
 		log.Print(err, user)
-		c.JSON(http.StatusInternalServerError, err)
+		c.JSON(http.StatusInternalServerError, consts.RegeditFail)
 		return
 	}
-	c.JSON(http.StatusOK, "success")
+	c.JSON(http.StatusOK, consts.RegeditSuccess)
 }
