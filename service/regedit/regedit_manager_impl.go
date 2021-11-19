@@ -1,30 +1,28 @@
-package login
+package regedit
 
 import (
 	"crypto/md5"
 	"fmt"
+	"log"
 	"net/http"
 	"usermanagersystem/model"
 	"usermanagersystem/utils/database"
 
-	"gorm.io/gorm"
-
 	"github.com/gin-gonic/gin"
 )
 
-type loginManagerImpl struct {
+type regeditManagerImpl struct {
 }
 
-func (login *loginManagerImpl) UserLogin(c *gin.Context) {
+func (regeditManager regeditManagerImpl) UserRegedit(c *gin.Context) {
 	user := model.User{
 		Account:  c.Query("account"),
 		Password: fmt.Sprintf("%x", md5.Sum([]byte(c.Query("password")))),
 	}
-
-	if err := database.DB.Where(&user).Take(&user).Error; err == gorm.ErrRecordNotFound {
-		c.JSON(http.StatusInternalServerError, "LoginFail")
+	if err := database.DB.Create(&user).Error; err != nil {
+		log.Print(err, user)
+		c.JSON(http.StatusInternalServerError, err)
 		return
 	}
-
 	c.JSON(http.StatusOK, "success")
 }

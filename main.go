@@ -4,6 +4,7 @@ import (
 	"log"
 	"usermanagersystem/service/html"
 	"usermanagersystem/service/login"
+	"usermanagersystem/service/regedit"
 	"usermanagersystem/utils/configReader"
 	"usermanagersystem/utils/database"
 
@@ -19,11 +20,10 @@ func main() {
 		log.Fatal(err)
 	}
 	router := gin.Default()
-	htmlManager := html.New()
-	loginManager := login.New()
 	router.LoadHTMLGlob("templates/*")   // html 文件
 	router.Static("/static", "./static") // 静态文件映射
-	router.GET("/", htmlManager.ToLogin)
-	router.GET("/UserLogin", loginManager.UserLogin)
+	router.GET("/", html.New().ToLogin)
+	router.GET("/UserLogin", login.New().UserLogin)
+	router.GET("/UserRegedit", regedit.New().UserRegedit)
 	router.Run()
 }
