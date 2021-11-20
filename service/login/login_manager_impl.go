@@ -3,8 +3,6 @@ package login
 import (
 	"crypto/md5"
 	"fmt"
-	"net/http"
-	"usermanagersystem/consts"
 	"usermanagersystem/model"
 	"usermanagersystem/utils/database"
 
@@ -16,16 +14,15 @@ import (
 type loginManagerImpl struct {
 }
 
-func (login *loginManagerImpl) UserLogin(c *gin.Context) {
+func (login *loginManagerImpl) UserLogin(c *gin.Context) error {
 	user := model.User{
 		Account:  c.Query("account"),
 		Password: fmt.Sprintf("%x", md5.Sum([]byte(c.Query("password")))),
 	}
 
 	if err := database.DB.Where(&user).Take(&user).Error; err == gorm.ErrRecordNotFound {
-		c.JSON(http.StatusInternalServerError, consts.LoginFail)
-		return
+		return err
 	}
 
-	c.JSON(http.StatusOK, consts.LoginSuccess)
+	return nil
 }

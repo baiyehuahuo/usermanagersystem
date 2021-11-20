@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"usermanagersystem/service/filecontrol"
 	"usermanagersystem/service/html"
 	"usermanagersystem/service/login"
 	"usermanagersystem/service/regedit"
@@ -20,10 +21,21 @@ func main() {
 		log.Fatal(err)
 	}
 	router := gin.Default()
+	htmlManager := html.New()
 	router.LoadHTMLGlob("templates/*")   // html 文件
 	router.Static("/static", "./static") // 静态文件映射
-	router.GET("/", html.New().ToLogin)
-	router.GET("/UserLogin", login.New().UserLogin)
-	router.GET("/UserRegedit", regedit.New().UserRegedit)
-	router.Run()
+	router.GET("/", htmlManager.ToLogin)
+	router.GET("/UserManage", htmlManager.ToUserManage)
+
+	handle := handleManager{
+		loginManager:       login.New(),
+		regeditManager:     regedit.New(),
+		fileControlManager: filecontrol.New(),
+	}
+	router.GET("/UserLogin", handle.UserLogin)
+	router.GET("/UserRegedit", handle.UserRegedit)
+	router.POST("/UploadFile", handle.FileUpload)
+	if err := router.Run(); err != nil {
+		log.Fatal(err)
+	}
 }
