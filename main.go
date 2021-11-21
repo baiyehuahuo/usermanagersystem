@@ -3,33 +3,37 @@ package main
 import (
 	"log"
 	"usermanagersystem/service/filecontrol"
-	"usermanagersystem/service/html"
-	"usermanagersystem/service/login"
-	"usermanagersystem/service/regedit"
-	"usermanagersystem/utils/configReader"
-	"usermanagersystem/utils/database"
+	"usermanagersystem/service/htmlcontrol"
+	"usermanagersystem/service/logincontrol"
+	"usermanagersystem/service/regeditcontrol"
+	"usermanagersystem/utils/configread"
+	"usermanagersystem/utils/databasecontrol"
+	"usermanagersystem/utils/rediscontrol"
 
 	"github.com/gin-gonic/gin"
 )
 
 func main() {
 
-	if err := configReader.ConfigRead(); err != nil {
+	if err := configread.ConfigRead(); err != nil {
 		log.Fatal(err)
 	}
-	if err := database.ConnectDatabase(); err != nil {
+	if err := databasecontrol.ConnectDatabase(); err != nil {
+		log.Fatal(err)
+	}
+	if err := rediscontrol.ConnectToRedis(); err != nil {
 		log.Fatal(err)
 	}
 	router := gin.Default()
-	htmlManager := html.New()
+	htmlManager := htmlcontrol.New()
 	router.LoadHTMLGlob("templates/*")   // html 文件
 	router.Static("/static", "./static") // 静态文件映射
 	router.GET("/", htmlManager.ToLogin)
 	router.GET("/UserManage", htmlManager.ToUserManage)
 
 	handle := handleManager{
-		loginManager:       login.New(),
-		regeditManager:     regedit.New(),
+		loginManager:       logincontrol.New(),
+		regeditManager:     regeditcontrol.New(),
 		fileControlManager: filecontrol.New(),
 	}
 	router.GET("/UserLogin", handle.UserLogin)

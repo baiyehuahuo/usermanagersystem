@@ -11,10 +11,10 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type fileControlManagerImpl struct {
+type fileControllerImpl struct {
 }
 
-func (f *fileControlManagerImpl) FileUpload(c *gin.Context) error {
+func (fileController *fileControllerImpl) FileUpload(c *gin.Context) error {
 	var file *multipart.FileHeader
 	var err error
 	userName := c.PostForm("name") // todo 判断用户名是否可用
@@ -31,6 +31,9 @@ func (f *fileControlManagerImpl) FileUpload(c *gin.Context) error {
 	if err = c.SaveUploadedFile(file, filePath); err != nil {
 		return err
 	}
+
+	cookie, _ := c.Cookie(consts.UserCookieName)
+	log.Print("cookie:", cookie)
 
 	return nil
 }

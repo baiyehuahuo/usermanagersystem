@@ -4,16 +4,16 @@ import (
 	"net/http"
 	"usermanagersystem/consts"
 	"usermanagersystem/service/filecontrol"
-	"usermanagersystem/service/login"
-	"usermanagersystem/service/regedit"
+	"usermanagersystem/service/logincontrol"
+	"usermanagersystem/service/regeditcontrol"
 
 	"github.com/gin-gonic/gin"
 )
 
 type handleManager struct {
-	loginManager       login.LoginManager
-	regeditManager     regedit.RegeditManager
-	fileControlManager filecontrol.FileControlManager
+	loginManager       logincontrol.LoginController
+	regeditManager     regeditcontrol.RegeditController
+	fileControlManager filecontrol.FileController
 }
 
 func (handle *handleManager) UserLogin(c *gin.Context) {

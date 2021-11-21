@@ -1,8 +1,8 @@
-package database
+package databasecontrol
 
 import (
 	"fmt"
-	"usermanagersystem/utils/configReader"
+	"usermanagersystem/utils/configread"
 
 	"gorm.io/driver/mysql"
 
@@ -13,7 +13,7 @@ var DB *gorm.DB
 
 func ConnectDatabase() error {
 	var err error
-	config := configReader.Config
+	config := configread.Config.MysqlConfig
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8&parseTime=True&loc=Local",
 		config.UserAccount, config.Password, config.Host, config.Port, config.DbName)
 	DB, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})

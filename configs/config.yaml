@@ -1,5 +1,12 @@
-useraccount: root
-password: password
-host: 127.0.0.1
-port: 3306
-dbname: test
+mysqlconfig:
+  useraccount: root
+  password: password
+  host: 127.0.0.1
+  port: 3306
+  dbname: test
+
+redisconfig:
+  host: 127.0.0.1
+  port: 6379
+  password: redisPassword
+  dbnum: 0
