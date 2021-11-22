@@ -7,11 +7,13 @@ import (
 	"path/filepath"
 	"time"
 	"usermanagersystem/consts"
+	"usermanagersystem/utils/rediscontrol"
 
 	"github.com/gin-gonic/gin"
 )
 
 type fileControllerImpl struct {
+	rc rediscontrol.RedisController
 }
 
 func (fileController *fileControllerImpl) FileUpload(c *gin.Context) error {

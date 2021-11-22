@@ -17,7 +17,7 @@ func (regeditController *regeditControllerImpl) UserRegedit(c *gin.Context) erro
 		Account:  c.Query("account"),
 		Password: fmt.Sprintf("%x", md5.Sum([]byte(c.Query("password")))),
 	}
-	if err := databasecontrol.DB.Create(&user).Error; err != nil {
+	if err := databasecontrol.GetDB().Create(&user).Error; err != nil {
 		return err
 	}
 	return nil

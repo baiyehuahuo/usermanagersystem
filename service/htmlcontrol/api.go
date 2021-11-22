@@ -1,6 +1,10 @@
 package htmlcontrol
 
-import "github.com/gin-gonic/gin"
+import (
+	"usermanagersystem/utils/rediscontrol"
+
+	"github.com/gin-gonic/gin"
+)
 
 type HtmlController interface {
 	ToLogin(c *gin.Context)
@@ -8,5 +12,7 @@ type HtmlController interface {
 }
 
 func New() HtmlController {
-	return &htmlControllerImpl{}
+	return &htmlControllerImpl{
+		rc: rediscontrol.New(),
+	}
 }
