@@ -16,7 +16,7 @@ type htmlControllerImpl struct {
 func (htmlController *htmlControllerImpl) ToLogin(c *gin.Context) {
 	if cookie, err := c.Cookie(consts.UserCookieName); err == nil {
 		log.Println("get cookie:", cookie)
-		if user, _ := htmlController.rc.Get(consts.RedisCookieHash + cookie); user != "" {
+		if user, _ := htmlController.rc.Get(consts.RedisCookieHashPrefix + cookie); user != "" {
 			log.Printf("user [%s] logined", user)
 			c.HTML(http.StatusOK, "UserManage.html", "")
 			return

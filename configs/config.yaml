@@ -10,3 +10,10 @@ redisconfig:
   port: 6379
   password: redisPassword
   dbnum: 0
+
+emailconfig:
+  email: 15343014813@163.com
+  addr: smtp.163.com:25
+  username: 15343014813@163.com  # username 和 email 要相同
+  password: PJUJNRXNMWQXBAPU
+  host: smtp.163.com  # addr 好像就是 host:25

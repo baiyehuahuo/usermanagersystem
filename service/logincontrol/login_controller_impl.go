@@ -32,7 +32,7 @@ func (loginController *loginControllerImpl) UserLogin(c *gin.Context) error {
 	cookie := fmt.Sprintf("%x", md5.Sum([]byte(user.Account+time.Now().String()))) // cookie值
 	c.SetCookie(consts.UserCookieName, cookie, consts.CookieContinueTime, consts.CookieValidationRange,
 		consts.CookieValidationDomain, false, true)
-	if err := loginController.rc.Set(consts.RedisCookieHash+cookie, user.Account,
+	if err := loginController.rc.Set(consts.RedisCookieHashPrefix+cookie, user.Account,
 		time.Second*consts.CookieContinueTime); err != nil {
 		return err
 	}

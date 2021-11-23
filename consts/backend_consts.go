@@ -8,5 +8,11 @@ const (
 	CookieValidationRange  = "/"
 	CookieValidationDomain = "127.0.0.1:8080"
 
-	RedisCookieHash = "UserCookie_"
+	RedisCookieHashPrefix = "UserCookie_"
+	RedisAuthCodePrefix   = "AuthCode_"
+
+	AuthEmailUser        = "测试"
+	AuthEmailSubject     = "验证码"
+	AuthCodeRandRange    = 1e6
+	AuthCodeContinueTime = 30 // 单位是秒
 )

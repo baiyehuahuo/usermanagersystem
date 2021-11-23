@@ -21,7 +21,7 @@ type passwordControllerImpl struct {
 func (p *passwordControllerImpl) ModifyPassword(c *gin.Context) error {
 	var username string
 	if cookie, err := c.Cookie(consts.UserCookieName); err == nil {
-		username, _ = p.rc.Get(consts.RedisCookieHash + cookie)
+		username, _ = p.rc.Get(consts.RedisCookieHashPrefix + cookie)
 	}
 	if username == "" {
 		return errors.New("无效cookie")

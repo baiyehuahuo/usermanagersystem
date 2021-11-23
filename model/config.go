@@ -3,6 +3,7 @@ package model
 type ConfigModel struct {
 	MysqlConfig mysqlConfig `yaml: "mysqlconfig"`
 	RedisConfig redisConfig `yaml: "redisconfig"`
+	EmailConfig emailConfig `yaml: "emailconfig"`
 }
 
 type mysqlConfig struct {
@@ -18,4 +19,12 @@ type redisConfig struct {
 	Port     int    `yaml: "port"`
 	Password string `yaml: "password"`
 	DbNum    int    `yaml: "dbnum"`
+}
+
+type emailConfig struct {
+	Email    string `yaml: "email"`
+	Addr     string `yaml: "addr"`
+	UserName string `yaml: "username"`
+	Password string `yaml: "password"`
+	Host     string `yaml: "host"`
 }

@@ -9,22 +9,29 @@ import (
 	"usermanagersystem/service/regeditcontrol"
 	"usermanagersystem/utils/configread"
 	"usermanagersystem/utils/databasecontrol"
+	"usermanagersystem/utils/emailauthcode"
 	"usermanagersystem/utils/rediscontrol"
 
 	"github.com/gin-gonic/gin"
 )
 
-func main() {
-
+func init() {
 	if err := configread.ConfigRead(); err != nil {
 		log.Fatal(err)
 	}
+
 	if err := databasecontrol.ConnectDatabase(); err != nil {
 		log.Fatal(err)
 	}
+
 	if err := rediscontrol.ConnectToRedis(); err != nil {
 		log.Fatal(err)
 	}
+
+	emailauthcode.EmailAuthCodeControllerCreate()
+}
+
+func main() {
 	router := gin.Default()
 	htmlManager := htmlcontrol.New()
 	router.LoadHTMLGlob("templates/*")   // html 文件
