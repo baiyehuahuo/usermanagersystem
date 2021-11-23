@@ -9,4 +9,7 @@ const (
 
 	UploadSuccess = "Upload Success"
 	UploadFail    = "Upload Fail"
+
+	ModifyPasswordSuccess = "Modify Password Success"
+	ModifyPasswordFail    = "Modify Password Fail"
 )

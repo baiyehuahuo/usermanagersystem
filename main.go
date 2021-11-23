@@ -5,6 +5,7 @@ import (
 	"usermanagersystem/service/filecontrol"
 	"usermanagersystem/service/htmlcontrol"
 	"usermanagersystem/service/logincontrol"
+	"usermanagersystem/service/passwordcontrol"
 	"usermanagersystem/service/regeditcontrol"
 	"usermanagersystem/utils/configread"
 	"usermanagersystem/utils/databasecontrol"
@@ -35,10 +36,12 @@ func main() {
 		loginManager:       logincontrol.New(),
 		regeditManager:     regeditcontrol.New(),
 		fileControlManager: filecontrol.New(),
+		passwordManager:    passwordcontrol.New(),
 	}
 	router.GET("/UserLogin", handle.UserLogin)
 	router.GET("/UserRegedit", handle.UserRegedit)
 	router.POST("/UploadFile", handle.FileUpload)
+	router.POST("/ModifyPassword", handle.ModifyPassword)
 	if err := router.Run(); err != nil {
 		log.Fatal(err)
 	}
