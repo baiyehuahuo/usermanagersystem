@@ -2,6 +2,9 @@ package consts
 
 const (
 	DefaultFileRootPath = "uploadfiles"
+	DefaultUserFilePath = DefaultFileRootPath + "/userfiles"
+	DefaultAvatarPath   = DefaultFileRootPath + "/avatars"
+	DefaultAvatarSuffix = "avatar"
 
 	UserCookieName         = "UserCookie"
 	CookieContinueTime     = 30 // 单位是秒 3600 就是一小时

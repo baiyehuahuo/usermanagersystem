@@ -16,6 +16,18 @@
         <input type="submit" value="提交"/>
     </div>
 </form>
+<body>
+<form action="/UploadAvatar" method="post" enctype="multipart/form-data">
+    <div>
+        用户名:<input type="text" name="name" />
+    </div>
+    <div>
+        头像:<input type="file" name="avatar" />
+    </div>
+    <div>
+        <input type="submit" value="提交"/>
+    </div>
+</form>
 <form action="/ModifyPassword" method="post">
     <div>
         <input type="password" name="oldPassword" placeholder="旧密码"/>

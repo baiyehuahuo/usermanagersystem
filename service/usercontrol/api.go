@@ -9,6 +9,7 @@ import (
 type UserController interface {
 	ModifyPassword(c *gin.Context) error
 	FileUpload(c *gin.Context) error
+	AvatarUpload(c *gin.Context) error
 }
 
 func New() UserController {

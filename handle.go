@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"net/http"
+	"os"
 	"usermanagersystem/consts"
 	"usermanagersystem/service/logincontrol"
 	"usermanagersystem/service/usercontrol"
@@ -49,4 +50,16 @@ func (handle *handleManager) ModifyPassword(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, consts.ModifyPasswordSuccess)
+}
+
+func UploadFileCreate() error {
+	if err := os.MkdirAll(consts.DefaultUserFilePath, os.ModePerm); err != nil {
+		log.Print("目录创建失败", err)
+		return err
+	}
+	if err := os.MkdirAll(consts.DefaultAvatarPath, os.ModePerm); err != nil {
+		log.Print("目录创建失败", err)
+		return err
+	}
+	return nil
 }

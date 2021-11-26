@@ -26,7 +26,11 @@ func init() {
 		log.Fatal(err)
 	}
 
+	if err := UploadFileCreate(); err != nil {
+		log.Fatal(err)
+	}
 	emailauthcode.EmailAuthCodeControllerCreate()
+
 }
 
 func main() {
@@ -34,6 +38,7 @@ func main() {
 	htmlManager := htmlcontrol.New()
 	router.LoadHTMLGlob("templates/*")   // html 文件
 	router.Static("/static", "./static") // 静态文件映射
+	router.Static("/avatar", "")
 	router.GET("/", htmlManager.ToLogin)
 	router.GET("/UserManage", htmlManager.ToUserManage)
 
