@@ -8,6 +8,7 @@ import (
 
 type LoginController interface {
 	UserLogin(c *gin.Context) error
+	UserRegedit(c *gin.Context) error
 }
 
 func New() LoginController {

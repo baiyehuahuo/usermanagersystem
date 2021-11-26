@@ -39,3 +39,14 @@ func (loginController *loginControllerImpl) UserLogin(c *gin.Context) error {
 
 	return nil
 }
+
+func (loginController *loginControllerImpl) UserRegedit(c *gin.Context) error {
+	user := model.User{
+		Account:  c.Query("account"),
+		Password: fmt.Sprintf("%x", md5.Sum([]byte(c.Query("password")))),
+	}
+	if err := databasecontrol.GetDB().Create(&user).Error; err != nil {
+		return err
+	}
+	return nil
+}

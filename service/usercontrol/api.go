@@ -1,4 +1,4 @@
-package filecontrol
+package usercontrol
 
 import (
 	"usermanagersystem/utils/rediscontrol"
@@ -6,12 +6,13 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type FileController interface {
+type UserController interface {
+	ModifyPassword(c *gin.Context) error
 	FileUpload(c *gin.Context) error
 }
 
-func New() FileController {
-	return &fileControllerImpl{
+func New() UserController {
+	return &userControllerImpl{
 		rc: rediscontrol.New(),
 	}
 }

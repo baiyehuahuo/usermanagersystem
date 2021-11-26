@@ -1,22 +1,54 @@
-package filecontrol
+package usercontrol
 
 import (
+	"crypto/md5"
+	"errors"
+	"fmt"
 	"log"
 	"mime/multipart"
 	"os"
 	"path/filepath"
 	"time"
 	"usermanagersystem/consts"
+	"usermanagersystem/model"
+	"usermanagersystem/utils/databasecontrol"
 	"usermanagersystem/utils/rediscontrol"
 
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
-type fileControllerImpl struct {
+type userControllerImpl struct {
 	rc rediscontrol.RedisController
 }
 
-func (fileController *fileControllerImpl) FileUpload(c *gin.Context) error {
+func (uc *userControllerImpl) ModifyPassword(c *gin.Context) error {
+	var username string
+	if cookie, err := c.Cookie(consts.UserCookieName); err == nil {
+		username, _ = uc.rc.Get(consts.RedisCookieHashPrefix + cookie)
+	}
+	if username == "" {
+		return errors.New("无效cookie")
+	}
+
+	user := model.User{
+		Account:  username,
+		Password: fmt.Sprintf("%x", md5.Sum([]byte(c.PostForm("oldPassword")))),
+	}
+	if err := databasecontrol.GetDB().Where(&user).Take(&user).Error; err == gorm.ErrRecordNotFound {
+		return err
+	}
+	modify := model.User{
+		Account:  username,
+		Password: fmt.Sprintf("%x", md5.Sum([]byte(c.PostForm("newPassword")))),
+	}
+	if err := databasecontrol.GetDB().Model(&user).Updates(modify).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
+func (uc *userControllerImpl) FileUpload(c *gin.Context) error {
 	var file *multipart.FileHeader
 	var err error
 	userName := c.PostForm("name") // todo 判断用户名是否可用

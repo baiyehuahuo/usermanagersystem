@@ -2,11 +2,9 @@ package main
 
 import (
 	"log"
-	"usermanagersystem/service/filecontrol"
 	"usermanagersystem/service/htmlcontrol"
 	"usermanagersystem/service/logincontrol"
-	"usermanagersystem/service/passwordcontrol"
-	"usermanagersystem/service/regeditcontrol"
+	"usermanagersystem/service/usercontrol"
 	"usermanagersystem/utils/configread"
 	"usermanagersystem/utils/databasecontrol"
 	"usermanagersystem/utils/emailauthcode"
@@ -40,10 +38,8 @@ func main() {
 	router.GET("/UserManage", htmlManager.ToUserManage)
 
 	handle := handleManager{
-		loginManager:       logincontrol.New(),
-		regeditManager:     regeditcontrol.New(),
-		fileControlManager: filecontrol.New(),
-		passwordManager:    passwordcontrol.New(),
+		lm: logincontrol.New(),
+		um: usercontrol.New(),
 	}
 	router.GET("/UserLogin", handle.UserLogin)
 	router.GET("/UserRegedit", handle.UserRegedit)
