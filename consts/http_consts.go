@@ -12,4 +12,6 @@ const (
 
 	ModifyPasswordSuccess = "Modify Password Success"
 	ModifyPasswordFail    = "Modify Password Fail"
+
+	GetUserMessageFail = "Get User Message Fail"
 )

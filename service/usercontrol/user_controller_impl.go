@@ -12,7 +12,6 @@ import (
 	"time"
 	"usermanagersystem/consts"
 	"usermanagersystem/model"
-	"usermanagersystem/utils/databasecontrol"
 	"usermanagersystem/utils/rediscontrol"
 
 	"github.com/gin-gonic/gin"
@@ -20,45 +19,96 @@ import (
 )
 
 type userControllerImpl struct {
+	db *gorm.DB
 	rc rediscontrol.RedisController
 }
 
-func (uc *userControllerImpl) ModifyPassword(c *gin.Context) error {
-	var username string
-	if cookie, err := c.Cookie(consts.UserCookieName); err == nil {
-		username, _ = uc.rc.Get(consts.RedisCookieHashPrefix + cookie)
-	}
-	if username == "" {
-		return errors.New("无效cookie")
+// GetUserMessageByCookie 通过Cookie获取用户信息
+func (uc *userControllerImpl) GetUserMessageByCookie(c *gin.Context) (*model.User, error) {
+	var account string
+	var err error
+
+	if account, err = uc.getAccount(c); err != nil {
+		return nil, err
 	}
 
+	user := &model.User{Account: account}
+	if err := uc.db.Where(user).Take(user).Error; err == gorm.ErrRecordNotFound {
+		return nil, err
+	}
+
+	return user, nil
+}
+
+// ModifyPassword 修改密码
+func (uc *userControllerImpl) ModifyPassword(c *gin.Context) error {
+	var account string
+	var err error
+
+	if account, err = uc.getAccount(c); err != nil {
+		return err
+	}
+	// todo 合并检测存在于更新
+	// 检测存在
 	user := model.User{
-		Account:  username,
+		Account:  account,
 		Password: fmt.Sprintf("%x", md5.Sum([]byte(c.PostForm("oldPassword")))),
 	}
-	if err := databasecontrol.GetDB().Where(&user).Take(&user).Error; err == gorm.ErrRecordNotFound {
+	if err := uc.db.Where(&user).Take(&user).Error; err == gorm.ErrRecordNotFound {
 		return err
 	}
+
+	// 更新
 	modify := model.User{
-		Account:  username,
+		Account:  account,
 		Password: fmt.Sprintf("%x", md5.Sum([]byte(c.PostForm("newPassword")))),
 	}
-	if err := databasecontrol.GetDB().Model(&user).Updates(modify).Error; err != nil {
+	if err := uc.db.Model(&user).Updates(modify).Error; err != nil {
 		return err
 	}
+
 	return nil
 }
 
-func (uc *userControllerImpl) FileUpload(c *gin.Context) error {
+// UploadAvatar 上传头像
+func (uc *userControllerImpl) UploadAvatar(c *gin.Context) error {
+	var account string
 	var file *multipart.FileHeader
 	var err error
-	userName := c.PostForm("name") // todo 判断用户名是否可用
-	if file, err = c.FormFile("file"); err != nil || userName == "" {
+
+	if account, err = uc.getAccount(c); err != nil {
+		return err
+	}
+
+	if file, err = c.FormFile("avatar"); err != nil {
+		return err
+	}
+
+	filePath := filepath.Join(consts.DefaultAvatarPath, fmt.Sprintf("%s_%s%s", account, consts.DefaultAvatarSuffix,
+		path.Ext(file.Filename)))
+	// todo 保存ext到数据库中
+
+	if err = c.SaveUploadedFile(file, filePath); err != nil { // todo 删除旧头像
+		return err
+	}
+
+	return nil
+}
+
+// UploadFile 上传文件
+func (uc *userControllerImpl) UploadFile(c *gin.Context) error {
+	var account string
+	var file *multipart.FileHeader
+	var err error
+	if account, err = uc.getAccount(c); err != nil {
+		return err
+	}
+	if file, err = c.FormFile("file"); err != nil {
 		return err
 	}
 
 	var filePath string
-	if filePath, err = mkdir(userName); err != nil {
+	if filePath, err = mkdir(account); err != nil {
 		return err
 	}
 	filePath = filepath.Join(filePath, file.Filename)
@@ -67,36 +117,19 @@ func (uc *userControllerImpl) FileUpload(c *gin.Context) error {
 		return err
 	}
 
-	cookie, _ := c.Cookie(consts.UserCookieName)
-	log.Print("cookie:", cookie)
-
 	return nil
 }
 
-func (uc *userControllerImpl) AvatarUpload(c *gin.Context) error {
-	var file *multipart.FileHeader
-	var err error
-	userName := c.PostForm("name") // todo 判断用户名是否可用
-	if file, err = c.FormFile("avatar"); err != nil || userName == "" {
-		return err
+// getAccount 通过cookie获取账户
+func (uc *userControllerImpl) getAccount(c *gin.Context) (string, error) {
+	var account string
+	if cookie, err := c.Cookie(consts.UserCookieName); err == nil {
+		account, _ = uc.rc.Get(consts.RedisCookieHashPrefix + cookie)
 	}
-
-	var filePath string
-	if filePath, err = mkdir(userName); err != nil {
-		return err
+	if account == "" {
+		return "", errors.New(consts.CookieTimeOutError)
 	}
-	filePath = filepath.Join(consts.DefaultAvatarPath, fmt.Sprintf("%s_%s.%s", userName, consts.DefaultAvatarSuffix,
-		path.Ext(file.Filename)))
-	// todo 保存ext到数据库中
-
-	if err = c.SaveUploadedFile(file, filePath); err != nil { // todo 删除旧头像
-		return err
-	}
-
-	cookie, _ := c.Cookie(consts.UserCookieName)
-	log.Print("cookie:", cookie)
-
-	return nil
+	return account, nil
 }
 
 func mkdir(userName string) (string, error) {

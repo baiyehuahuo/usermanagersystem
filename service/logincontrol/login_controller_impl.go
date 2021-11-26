@@ -44,7 +44,8 @@ func (loginController *loginControllerImpl) UserRegedit(c *gin.Context) error {
 	user := model.User{
 		Account:  c.Query("account"),
 		Password: fmt.Sprintf("%x", md5.Sum([]byte(c.Query("password")))),
-		Email:    c.Query("email"),
+		Email:    c.Query("email"), // todo 检测是否已被注册
+		NickName: c.Query("nickname"),
 	}
 	if err := databasecontrol.GetDB().Create(&user).Error; err != nil {
 		return err

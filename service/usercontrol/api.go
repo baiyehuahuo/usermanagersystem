@@ -1,19 +1,24 @@
 package usercontrol
 
 import (
+	"usermanagersystem/model"
+	"usermanagersystem/utils/databasecontrol"
 	"usermanagersystem/utils/rediscontrol"
 
 	"github.com/gin-gonic/gin"
 )
 
 type UserController interface {
+	getAccount(c *gin.Context) (string, error)
+	GetUserMessageByCookie(c *gin.Context) (*model.User, error)
 	ModifyPassword(c *gin.Context) error
-	FileUpload(c *gin.Context) error
-	AvatarUpload(c *gin.Context) error
+	UploadFile(c *gin.Context) error
+	UploadAvatar(c *gin.Context) error
 }
 
 func New() UserController {
 	return &userControllerImpl{
+		db: databasecontrol.GetDB(),
 		rc: rediscontrol.New(),
 	}
 }

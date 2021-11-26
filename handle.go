@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"os"
 	"usermanagersystem/consts"
+	"usermanagersystem/model"
 	"usermanagersystem/service/logincontrol"
 	"usermanagersystem/service/usercontrol"
 
@@ -14,6 +15,30 @@ import (
 type handleManager struct {
 	lm logincontrol.LoginController
 	um usercontrol.UserController
+}
+
+func (handle *handleManager) GetUserMessageByCookie(c *gin.Context) {
+	user, err := handle.um.GetUserMessageByCookie(c)
+	if err != nil {
+		log.Printf("GetUserMessage Fail: %v", err)
+		c.JSON(http.StatusInternalServerError, consts.GetUserMessageFail)
+		return
+	}
+	result := model.UserMessage{
+		Account:  user.Account,
+		Email:    user.Email,
+		NickName: user.NickName,
+	}
+	c.JSON(http.StatusOK, result)
+}
+
+func (handle *handleManager) ModifyPassword(c *gin.Context) {
+	if err := handle.um.ModifyPassword(c); err != nil {
+		log.Printf("ModifyPassword Fail: %v", err)
+		c.JSON(http.StatusInternalServerError, consts.ModifyPasswordFail)
+		return
+	}
+	c.JSON(http.StatusOK, consts.ModifyPasswordSuccess)
 }
 
 func (handle *handleManager) UserLogin(c *gin.Context) {
@@ -34,22 +59,22 @@ func (handle *handleManager) UserRegedit(c *gin.Context) {
 	c.JSON(http.StatusOK, consts.RegeditSuccess)
 }
 
-func (handle *handleManager) FileUpload(c *gin.Context) {
-	if err := handle.um.FileUpload(c); err != nil {
-		log.Printf("FileUpload Fail: %v", err)
+func (handle *handleManager) UploadFile(c *gin.Context) {
+	if err := handle.um.UploadFile(c); err != nil {
+		log.Printf("UploadFile Fail: %v", err)
 		c.JSON(http.StatusInternalServerError, consts.UploadFail)
 		return
 	}
 	c.JSON(http.StatusOK, consts.UploadSuccess)
 }
 
-func (handle *handleManager) ModifyPassword(c *gin.Context) {
-	if err := handle.um.ModifyPassword(c); err != nil {
-		log.Printf("ModifyPassword Fail: %v", err)
-		c.JSON(http.StatusInternalServerError, consts.ModifyPasswordFail)
+func (handle *handleManager) UploadAvatar(c *gin.Context) {
+	if err := handle.um.UploadAvatar(c); err != nil {
+		log.Printf("UploadAvatar Fail: %v", err)
+		c.JSON(http.StatusInternalServerError, consts.UploadFail)
 		return
 	}
-	c.JSON(http.StatusOK, consts.ModifyPasswordSuccess)
+	c.JSON(http.StatusOK, consts.UploadSuccess)
 }
 
 func UploadFileCreate() error {

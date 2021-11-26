@@ -1,3 +1,5 @@
-uploadfiles
-temp/*
 .idea
+
+temp
+
+uploadfiles/

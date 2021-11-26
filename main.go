@@ -38,7 +38,7 @@ func main() {
 	htmlManager := htmlcontrol.New()
 	router.LoadHTMLGlob("templates/*")   // html 文件
 	router.Static("/static", "./static") // 静态文件映射
-	router.Static("/avatar", "")
+	router.Static("/avatar", "./uploadfiles/avatars")
 	router.GET("/", htmlManager.ToLogin)
 	router.GET("/UserManage", htmlManager.ToUserManage)
 
@@ -46,9 +46,13 @@ func main() {
 		lm: logincontrol.New(),
 		um: usercontrol.New(),
 	}
+
 	router.GET("/UserLogin", handle.UserLogin)
+	router.GET("/GetUserMessage", handle.GetUserMessageByCookie)
 	router.GET("/UserRegedit", handle.UserRegedit)
-	router.POST("/UploadFile", handle.FileUpload)
+
+	router.POST("/UploadAvatar", handle.UploadAvatar)
+	router.POST("/UploadFile", handle.UploadFile)
 	router.POST("/ModifyPassword", handle.ModifyPassword)
 	if err := router.Run(); err != nil {
 		log.Fatal(err)
