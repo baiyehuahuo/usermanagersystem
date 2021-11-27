@@ -12,7 +12,7 @@ import (
 	"time"
 	"usermanagersystem/consts"
 	"usermanagersystem/model"
-	"usermanagersystem/utils/rediscontrol"
+	"usermanagersystem/utils"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -20,7 +20,7 @@ import (
 
 type userControllerImpl struct {
 	db *gorm.DB
-	rc rediscontrol.RedisController
+	rc utils.RedisController
 }
 
 // GetUserMessageByCookie 通过Cookie获取用户信息

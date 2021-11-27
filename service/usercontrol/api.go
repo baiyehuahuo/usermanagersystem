@@ -2,8 +2,7 @@ package usercontrol
 
 import (
 	"usermanagersystem/model"
-	"usermanagersystem/utils/databasecontrol"
-	"usermanagersystem/utils/rediscontrol"
+	"usermanagersystem/utils"
 
 	"github.com/gin-gonic/gin"
 )
@@ -18,7 +17,7 @@ type UserController interface {
 
 func New() UserController {
 	return &userControllerImpl{
-		db: databasecontrol.GetDB(),
-		rc: rediscontrol.New(),
+		db: utils.GetDB(),
+		rc: utils.RedisNew(),
 	}
 }

@@ -7,8 +7,7 @@ import (
 	"time"
 	"usermanagersystem/consts"
 	"usermanagersystem/model"
-	"usermanagersystem/utils/databasecontrol"
-	"usermanagersystem/utils/rediscontrol"
+	"usermanagersystem/utils"
 
 	"gorm.io/gorm"
 
@@ -16,7 +15,7 @@ import (
 )
 
 type loginControllerImpl struct {
-	rc rediscontrol.RedisController
+	rc utils.RedisController
 }
 
 func (loginController *loginControllerImpl) UserLogin(c *gin.Context) error {
@@ -24,7 +23,7 @@ func (loginController *loginControllerImpl) UserLogin(c *gin.Context) error {
 		Account:  c.Query("account"),
 		Password: fmt.Sprintf("%x", md5.Sum([]byte(c.Query("password")))),
 	}
-	if err := databasecontrol.GetDB().Where(&user).Take(&user).Error; err == gorm.ErrRecordNotFound {
+	if err := utils.GetDB().Where(&user).Take(&user).Error; err == gorm.ErrRecordNotFound {
 		return err
 	}
 
@@ -33,7 +32,7 @@ func (loginController *loginControllerImpl) UserLogin(c *gin.Context) error {
 	c.SetCookie(consts.UserCookieName, cookie, consts.CookieContinueTime, consts.CookieValidationRange,
 		consts.CookieValidationDomain, false, true)
 	if err := loginController.rc.Set(consts.RedisCookieHashPrefix+cookie, user.Account,
-		time.Second*consts.CookieContinueTime); err != nil {
+		consts.CookieContinueTime); err != nil {
 		return err
 	}
 
@@ -47,7 +46,7 @@ func (loginController *loginControllerImpl) UserRegedit(c *gin.Context) error {
 		Email:    c.Query("email"), // todo 检测是否已被注册
 		NickName: c.Query("nickname"),
 	}
-	if err := databasecontrol.GetDB().Create(&user).Error; err != nil {
+	if err := utils.GetDB().Create(&user).Error; err != nil {
 		return err
 	}
 	return nil

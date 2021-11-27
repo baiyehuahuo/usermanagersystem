@@ -1,4 +1,4 @@
-package configread
+package utils
 
 import (
 	"io/ioutil"

@@ -4,13 +4,13 @@ import (
 	"log"
 	"net/http"
 	"usermanagersystem/consts"
-	"usermanagersystem/utils/rediscontrol"
+	"usermanagersystem/utils"
 
 	"github.com/gin-gonic/gin"
 )
 
 type htmlControllerImpl struct {
-	rc rediscontrol.RedisController
+	rc utils.RedisController
 }
 
 func (htmlController *htmlControllerImpl) ToLogin(c *gin.Context) {

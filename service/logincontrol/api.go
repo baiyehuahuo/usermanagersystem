@@ -1,7 +1,7 @@
 package logincontrol
 
 import (
-	"usermanagersystem/utils/rediscontrol"
+	"usermanagersystem/utils"
 
 	"github.com/gin-gonic/gin"
 )
@@ -13,6 +13,6 @@ type LoginController interface {
 
 func New() LoginController {
 	return &loginControllerImpl{
-		rc: rediscontrol.New(),
+		rc: utils.RedisNew(),
 	}
 }

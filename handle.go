@@ -77,7 +77,7 @@ func (handle *handleManager) UploadAvatar(c *gin.Context) {
 	c.JSON(http.StatusOK, consts.UploadSuccess)
 }
 
-func UploadFileCreate() error {
+func UploadFilePathCreate() error {
 	if err := os.MkdirAll(consts.DefaultUserFilePath, os.ModePerm); err != nil {
 		log.Print("目录创建失败", err)
 		return err

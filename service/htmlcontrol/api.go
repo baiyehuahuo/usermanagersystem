@@ -1,7 +1,7 @@
 package htmlcontrol
 
 import (
-	"usermanagersystem/utils/rediscontrol"
+	"usermanagersystem/utils"
 
 	"github.com/gin-gonic/gin"
 )
@@ -13,6 +13,6 @@ type HtmlController interface {
 
 func New() HtmlController {
 	return &htmlControllerImpl{
-		rc: rediscontrol.New(),
+		rc: utils.RedisNew(),
 	}
 }

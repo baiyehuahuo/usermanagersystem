@@ -1,22 +1,33 @@
-package emailauthcode
+package utils
 
 import (
 	"fmt"
 	"math/rand"
 	"net/smtp"
+	"time"
 	"usermanagersystem/consts"
-	"usermanagersystem/utils/configread"
-	"usermanagersystem/utils/rediscontrol"
 
 	"github.com/jordan-wright/email"
 )
 
+var EACC EmailAuthCodeController
+
+type EmailAuthCodeController interface {
+	SendAuthCodeByEmail(target string) error
+}
+
+func EmailAuthCodeControllerCreate() {
+	rand.Seed(time.Now().Unix())
+	EACC = &emailAuthCodeControllerImpl{}
+}
+
+// todo 以下是实现
+
 type emailAuthCodeControllerImpl struct {
-	rc rediscontrol.RedisController
 }
 
 func (e *emailAuthCodeControllerImpl) SendAuthCodeByEmail(target string) error {
-	config := configread.Config.EmailConfig
+	config := Config.EmailConfig
 	em := email.NewEmail()
 	em.From = fmt.Sprintf("%s<%s>", consts.AuthEmailUser, config.Email)
 
@@ -25,6 +36,7 @@ func (e *emailAuthCodeControllerImpl) SendAuthCodeByEmail(target string) error {
 	em.Subject = consts.AuthEmailSubject
 
 	authCode := rand.Intn(consts.AuthCodeRandRange)
+	CC.SetAuthCode(target, authCode)
 	em.Text = []byte(fmt.Sprintf("Hello World!! %06d", authCode))
 
 	err := em.Send(config.Addr, smtp.PlainAuth("", config.UserName, config.Password, config.Host))
