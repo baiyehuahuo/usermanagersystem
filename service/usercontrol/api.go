@@ -8,7 +8,7 @@ import (
 )
 
 type UserController interface {
-	getAccount(c *gin.Context) (string, error)
+	getAccountByCookie(c *gin.Context) (string, error)
 	GetUserMessageByCookie(c *gin.Context) (*model.User, error)
 	ModifyPassword(c *gin.Context) error
 	UploadFile(c *gin.Context) error

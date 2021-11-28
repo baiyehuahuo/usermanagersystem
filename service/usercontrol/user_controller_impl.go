@@ -28,7 +28,7 @@ func (uc *userControllerImpl) GetUserMessageByCookie(c *gin.Context) (*model.Use
 	var account string
 	var err error
 
-	if account, err = uc.getAccount(c); err != nil {
+	if account, err = uc.getAccountByCookie(c); err != nil {
 		return nil, err
 	}
 
@@ -45,26 +45,17 @@ func (uc *userControllerImpl) ModifyPassword(c *gin.Context) error {
 	var account string
 	var err error
 
-	if account, err = uc.getAccount(c); err != nil {
+	if account, err = uc.getAccountByCookie(c); err != nil {
 		return err
 	}
-	// todo 合并检测存在于更新
-	// 检测存在
+	oldPassword := fmt.Sprintf("%x", md5.Sum([]byte(c.PostForm("oldPassword"))))
+	newPassword := fmt.Sprintf("%x", md5.Sum([]byte(c.PostForm("newPassword"))))
 	user := model.User{
 		Account:  account,
-		Password: fmt.Sprintf("%x", md5.Sum([]byte(c.PostForm("oldPassword")))),
+		Password: oldPassword,
 	}
-	if err := uc.db.Where(&user).Take(&user).Error; err == gorm.ErrRecordNotFound {
-		return err
-	}
-
-	// 更新
-	modify := model.User{
-		Account:  account,
-		Password: fmt.Sprintf("%x", md5.Sum([]byte(c.PostForm("newPassword")))),
-	}
-	if err := uc.db.Model(&user).Updates(modify).Error; err != nil {
-		return err
+	if rows := uc.db.Where(&user).Updates(&model.User{Password: newPassword}).RowsAffected; rows == 0 {
+		return errors.New(consts.UpdatePasswordFail)
 	}
 
 	return nil
@@ -76,7 +67,7 @@ func (uc *userControllerImpl) UploadAvatar(c *gin.Context) error {
 	var file *multipart.FileHeader
 	var err error
 
-	if account, err = uc.getAccount(c); err != nil {
+	if account, err = uc.getAccountByCookie(c); err != nil {
 		return err
 	}
 
@@ -100,7 +91,7 @@ func (uc *userControllerImpl) UploadFile(c *gin.Context) error {
 	var account string
 	var file *multipart.FileHeader
 	var err error
-	if account, err = uc.getAccount(c); err != nil {
+	if account, err = uc.getAccountByCookie(c); err != nil {
 		return err
 	}
 	if file, err = c.FormFile("file"); err != nil {
@@ -121,9 +112,9 @@ func (uc *userControllerImpl) UploadFile(c *gin.Context) error {
 }
 
 // getAccount 通过cookie获取账户
-func (uc *userControllerImpl) getAccount(c *gin.Context) (string, error) {
+func (uc *userControllerImpl) getAccountByCookie(c *gin.Context) (string, error) {
 	var account string
-	if cookie, err := c.Cookie(consts.UserCookieName); err == nil {
+	if cookie, err := c.Cookie(consts.CookieNameOfUser); err == nil {
 		account, _ = uc.rc.Get(consts.RedisCookieHashPrefix + cookie)
 	}
 	if account == "" {

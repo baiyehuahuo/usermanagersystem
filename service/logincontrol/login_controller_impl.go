@@ -29,12 +29,14 @@ func (loginController *loginControllerImpl) UserLogin(c *gin.Context) error {
 
 	c.SetSameSite(http.SameSiteLaxMode)
 	cookie := fmt.Sprintf("%x", md5.Sum([]byte(user.Account+time.Now().String()))) // cookie值
-	c.SetCookie(consts.UserCookieName, cookie, consts.CookieContinueTime, consts.CookieValidationRange,
+	c.SetCookie(consts.CookieNameOfUser, cookie, consts.CookieContinueTime, consts.CookieValidationRange,
 		consts.CookieValidationDomain, false, true)
 	if err := loginController.rc.Set(consts.RedisCookieHashPrefix+cookie, user.Account,
 		consts.CookieContinueTime); err != nil {
 		return err
 	}
+
+	_ = loginController.rc.SetUser(user) // 保存到 redis 缓存中
 
 	return nil
 }
