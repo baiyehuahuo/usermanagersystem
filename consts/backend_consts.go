@@ -15,11 +15,11 @@ const (
 	CookieNameOfUser       = "UserCookie"
 	CookieContinueTime     = 300 // 单位是秒 3600 就是一小时
 	CookieValidationRange  = "/"
-	CookieValidationDomain = "127.0.0.1:8080"
+	CookieValidationDomain = "127.0.0.1"
 	CookieTimeOutError     = "cookie is timeout"
 
 	RedisCookieHashPrefix        = "UserCookie_"
-	RedisAuthCodePrefix          = "AuthCode_"
+	RedisAuthCodePrefix          = "AuthCode_" // 假如保存在redis的前缀名
 	RedisUserMessagePrefix       = "UserMessage_"
 	RedisUserMessageContinueTime = 30
 
