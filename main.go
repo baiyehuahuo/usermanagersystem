@@ -56,6 +56,9 @@ func main() {
 	router.POST("/UploadAvatar", handle.UploadAvatar)
 	router.POST("/UploadFile", handle.UploadFile)
 	router.POST("/ModifyPassword", handle.ModifyPassword)
+	// todo 完成验证码的收发验证
+	router.POST("/SendAuthCode", handle.SendAuthCode)
+	router.POST("/CheckAuthCode", handle.CheckAuthCode)
 
 	if err := router.Run(); err != nil {
 		log.Fatal(err)

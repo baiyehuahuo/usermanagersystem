@@ -17,6 +17,10 @@ type handleManager struct {
 	um usercontrol.UserController
 }
 
+func (handle *handleManager) CheckAuthCode(c *gin.Context) {
+	c.JSON(http.StatusOK, "test")
+}
+
 func (handle *handleManager) GetUserMessageByCookie(c *gin.Context) {
 	user, err := handle.um.GetUserMessageByCookie(c)
 	if err != nil {
@@ -75,6 +79,10 @@ func (handle *handleManager) UploadAvatar(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, consts.UploadSuccess)
+}
+
+func (handle *handleManager) SendAuthCode(c *gin.Context) {
+	c.JSON(http.StatusOK, "test")
 }
 
 func UploadFilePathCreate() error {
