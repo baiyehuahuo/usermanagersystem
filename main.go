@@ -3,7 +3,6 @@ package main
 import (
 	"log"
 	"usermanagersystem/consts"
-	"usermanagersystem/model"
 	"usermanagersystem/service/htmlcontrol"
 	"usermanagersystem/service/logincontrol"
 	"usermanagersystem/service/usercontrol"
@@ -58,16 +57,6 @@ func main() {
 	router.POST("/UploadFile", handle.UploadFile)
 	router.POST("/ModifyPassword", handle.ModifyPassword)
 
-	user := model.User{
-		Account:   "000",
-		Password:  "",
-		Email:     "1770194225@qq.com",
-		NickName:  "范伟锋",
-		AvatarExt: "c6f057b86584942e415435ffb1fa93d4",
-	}
-	log.Println(user)
-	utils.RedisNew().SetUser(user)
-	utils.RedisNew().GetUser("000")
 	if err := router.Run(); err != nil {
 		log.Fatal(err)
 	}

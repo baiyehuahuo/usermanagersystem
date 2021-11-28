@@ -3,6 +3,7 @@ package logincontrol
 import (
 	"crypto/md5"
 	"fmt"
+	"log"
 	"net/http"
 	"time"
 	"usermanagersystem/consts"
@@ -36,7 +37,9 @@ func (loginController *loginControllerImpl) UserLogin(c *gin.Context) error {
 		return err
 	}
 
-	_ = loginController.rc.SetUser(user) // 保存到 redis 缓存中
+	if err := loginController.rc.SetUser(user); err != nil { // 保存到 redis 缓存中
+		log.Printf("user %s save into redis fail: %v", user.Account, err)
+	}
 
 	return nil
 }

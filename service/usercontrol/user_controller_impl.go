@@ -32,12 +32,7 @@ func (uc *userControllerImpl) GetUserMessageByCookie(c *gin.Context) (*model.Use
 		return nil, err
 	}
 
-	user := &model.User{Account: account}
-	if err := uc.db.Where(user).Take(user).Error; err == gorm.ErrRecordNotFound {
-		return nil, err
-	}
-
-	return user, nil
+	return uc.getUserByAccount(account)
 }
 
 // ModifyPassword 修改密码
@@ -121,6 +116,20 @@ func (uc *userControllerImpl) getAccountByCookie(c *gin.Context) (string, error)
 		return "", errors.New(consts.CookieTimeOutError)
 	}
 	return account, nil
+}
+
+func (uc *userControllerImpl) getUserByAccount(account string) (*model.User, error) {
+	user, err := uc.rc.GetUser(account)
+	if user != nil && err == nil {
+		//log.Printf("get user %s from redis", account)
+		return user, nil
+	}
+	//log.Printf("not get user %s from redis %v: %v", account, user, err)
+	user = &model.User{Account: account}
+	if err := uc.db.Where(user).Take(user).Error; err == gorm.ErrRecordNotFound {
+		return nil, err
+	}
+	return user, nil
 }
 
 func mkdir(userName string) (string, error) {

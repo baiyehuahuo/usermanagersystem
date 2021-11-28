@@ -68,7 +68,7 @@ func (r *redisControllerImpl) SetUser(user model.User) error {
 }
 
 func (r *redisControllerImpl) GetUser(account string) (*model.User, error) {
-	datas, err := r.Get(account)
+	datas, err := r.Get(consts.RedisUserMessagePrefix + account)
 	if err != nil {
 		return nil, err
 	}
