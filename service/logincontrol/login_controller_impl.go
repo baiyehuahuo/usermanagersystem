@@ -65,6 +65,7 @@ func (loginController *loginControllerImpl) UserRegedit(c *gin.Context) error {
 		Email:    c.Query("email"), // todo 检测是否已被注册
 		NickName: c.Query("nick_name"),
 	}
+	// todo 邮箱验证码
 	if err := utils.GetDB().Create(&user).Error; err != nil {
 		return err
 	}
