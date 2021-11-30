@@ -1,11 +1,13 @@
 package consts
 
+import "time"
+
 const (
 	AuthEmailUser          = "测试"
 	AuthEmailSubject       = "验证码"
 	AuthCodeRandRange      = 1e6
-	AuthCodeContinueTime   = 30  // 单位是秒
-	AuthCodeCacheFlushTime = 300 // 单位是秒
+	AuthCodeContinueTime   = 30 * time.Second
+	AuthCodeCacheFlushTime = 300 * time.Second
 
 	DefaultFileRootPath = "uploadfiles"
 	DefaultUserFilePath = DefaultFileRootPath + "/userfiles"

@@ -87,7 +87,7 @@ GET：用户注册（需要界面，然后改成POST，前后端都需要检测�
 | account  | string | 账户id | √    |
 | password | string | 密码   | √    |
 | email    | string | 邮箱   | √    |
-| nickname | string | 昵称   | √    |
+| nick_name | string | 昵称   | √    |
 
 
 

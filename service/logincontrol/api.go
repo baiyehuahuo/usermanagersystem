@@ -9,6 +9,8 @@ import (
 type LoginController interface {
 	UserLogin(c *gin.Context) error
 	UserRegedit(c *gin.Context) error
+	SendAuthCode(c *gin.Context) error
+	CheckAuthCode(c *gin.Context) error
 }
 
 func New() LoginController {

@@ -14,4 +14,10 @@ const (
 	ModifyPasswordFail    = "Modify Password Fail"
 
 	GetUserMessageFail = "Get User Message Fail"
+
+	SendAuthCodeSuccess = "Send Auth Code Success"
+	SendAuthCodeFail    = "Send Auth Code Fail"
+
+	CheckAuthCodeSuccess = "Auth Success"
+	CheckAuthCodeFail    = "Auth Fail"
 )

@@ -12,14 +12,18 @@ type CacheController interface {
 	DeleteAuthCode(email string)
 }
 
-var CC CacheController
+var cc CacheController
 
 func NewCache(authCodeTTL time.Duration, authCodeFlushTime time.Duration) error {
-	CC = &cacheContollerImpl{
+	cc = &cacheContollerImpl{
 		ac: cache.New(authCodeTTL, authCodeFlushTime),
 	}
 
 	return nil
+}
+
+func GetCC() CacheController {
+	return cc
 }
 
 // todo 以下是实现
@@ -34,7 +38,10 @@ func (cc *cacheContollerImpl) DeleteAuthCode(email string) {
 
 func (cc *cacheContollerImpl) GetAuthCode(email string) (int, bool) {
 	authCode, ok := cc.ac.Get(email)
-	return authCode.(int), ok
+	if !ok {
+		return 0, false
+	}
+	return authCode.(int), true
 }
 
 func (cc *cacheContollerImpl) SetAuthCode(email string, authCode int) {

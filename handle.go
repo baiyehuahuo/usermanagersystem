@@ -17,10 +17,17 @@ type handleManager struct {
 	um usercontrol.UserController
 }
 
+// CheckAuthCode 验证码检测处理接口
 func (handle *handleManager) CheckAuthCode(c *gin.Context) {
-	c.JSON(http.StatusOK, "test")
+	if err := handle.lm.CheckAuthCode(c); err != nil {
+		log.Printf("CheckAuthCode Fail: %v", err)
+		c.JSON(http.StatusInternalServerError, consts.CheckAuthCodeFail)
+		return
+	}
+	c.JSON(http.StatusOK, consts.CheckAuthCodeSuccess)
 }
 
+// GetUserMessageByCookie 通过Cookie获取用户信息处理接口
 func (handle *handleManager) GetUserMessageByCookie(c *gin.Context) {
 	user, err := handle.um.GetUserMessageByCookie(c)
 	if err != nil {
@@ -36,6 +43,7 @@ func (handle *handleManager) GetUserMessageByCookie(c *gin.Context) {
 	c.JSON(http.StatusOK, result)
 }
 
+// ModifyPassword 修改密码处理接口
 func (handle *handleManager) ModifyPassword(c *gin.Context) {
 	if err := handle.um.ModifyPassword(c); err != nil {
 		log.Printf("ModifyPassword Fail: %v", err)
@@ -45,6 +53,7 @@ func (handle *handleManager) ModifyPassword(c *gin.Context) {
 	c.JSON(http.StatusOK, consts.ModifyPasswordSuccess)
 }
 
+// UserLogin 用户登录处理接口
 func (handle *handleManager) UserLogin(c *gin.Context) {
 	if err := handle.lm.UserLogin(c); err != nil {
 		log.Printf("Login Fail: %v", err)
@@ -54,6 +63,7 @@ func (handle *handleManager) UserLogin(c *gin.Context) {
 	c.JSON(http.StatusOK, consts.LoginSuccess)
 }
 
+// UserRegedit 用户注册处理接口
 func (handle *handleManager) UserRegedit(c *gin.Context) {
 	if err := handle.lm.UserRegedit(c); err != nil {
 		log.Printf("Regedit Fail: %v", err)
@@ -63,6 +73,7 @@ func (handle *handleManager) UserRegedit(c *gin.Context) {
 	c.JSON(http.StatusOK, consts.RegeditSuccess)
 }
 
+// UploadFile 用户文件上传处理接口
 func (handle *handleManager) UploadFile(c *gin.Context) {
 	if err := handle.um.UploadFile(c); err != nil {
 		log.Printf("UploadFile Fail: %v", err)
@@ -72,6 +83,7 @@ func (handle *handleManager) UploadFile(c *gin.Context) {
 	c.JSON(http.StatusOK, consts.UploadSuccess)
 }
 
+// UploadAvatar 用户头像上传处理接口
 func (handle *handleManager) UploadAvatar(c *gin.Context) {
 	if err := handle.um.UploadAvatar(c); err != nil {
 		log.Printf("UploadAvatar Fail: %v", err)
@@ -81,8 +93,13 @@ func (handle *handleManager) UploadAvatar(c *gin.Context) {
 	c.JSON(http.StatusOK, consts.UploadSuccess)
 }
 
+// SendAuthCode 发送验证码处理接口
 func (handle *handleManager) SendAuthCode(c *gin.Context) {
-	c.JSON(http.StatusOK, "test")
+	if err := handle.lm.SendAuthCode(c); err != nil {
+		log.Printf("SendAuthCode Fail: %v", err)
+		c.JSON(http.StatusInternalServerError, consts.SendAuthCodeFail)
+	}
+	c.JSON(http.StatusOK, consts.SendAuthCodeSuccess)
 }
 
 func UploadFilePathCreate() error {

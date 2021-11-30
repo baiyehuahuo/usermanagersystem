@@ -49,17 +49,18 @@ func main() {
 		um: usercontrol.New(),
 	}
 
-	router.GET("/UserLogin", handle.UserLogin)
+	router.GET("/CheckAuthCode", handle.CheckAuthCode)
 	router.GET("/GetUserMessage", handle.GetUserMessageByCookie)
+	router.GET("/UserLogin", handle.UserLogin)
 	router.GET("/UserRegedit", handle.UserRegedit)
+	router.GET("/SendAuthCode", handle.SendAuthCode)
 
 	router.POST("/UploadAvatar", handle.UploadAvatar)
 	router.POST("/UploadFile", handle.UploadFile)
 	router.POST("/ModifyPassword", handle.ModifyPassword)
 	// todo 完成验证码的收发验证
-	router.POST("/SendAuthCode", handle.SendAuthCode)
-	router.POST("/CheckAuthCode", handle.CheckAuthCode)
-
+	//utils.GetCC().SetAuthCode("1770194225", 100)
+	//fmt.Println(utils.GetCC().GetAuthCode("1770194225"))
 	if err := router.Run(); err != nil {
 		log.Fatal(err)
 	}

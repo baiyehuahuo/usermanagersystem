@@ -2,9 +2,11 @@ package logincontrol
 
 import (
 	"crypto/md5"
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 	"time"
 	"usermanagersystem/consts"
 	"usermanagersystem/model"
@@ -17,6 +19,18 @@ import (
 
 type loginControllerImpl struct {
 	rc utils.RedisController
+}
+
+func (loginController *loginControllerImpl) CheckAuthCode(c *gin.Context) error {
+	email := c.Query("email")
+	authCode, err := strconv.Atoi(c.Query("auth_code"))
+	if err != nil {
+		return err
+	}
+	if !utils.GetEACC().CheckAuthCodeByEmail(email, authCode) {
+		return errors.New(consts.CheckAuthCodeFail)
+	}
+	return nil
 }
 
 func (loginController *loginControllerImpl) UserLogin(c *gin.Context) error {
@@ -49,9 +63,17 @@ func (loginController *loginControllerImpl) UserRegedit(c *gin.Context) error {
 		Account:  c.Query("account"),
 		Password: fmt.Sprintf("%x", md5.Sum([]byte(c.Query("password")))),
 		Email:    c.Query("email"), // todo 检测是否已被注册
-		NickName: c.Query("nickname"),
+		NickName: c.Query("nick_name"),
 	}
 	if err := utils.GetDB().Create(&user).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
+func (loginController *loginControllerImpl) SendAuthCode(c *gin.Context) error {
+	email := c.Query("email")
+	if err := utils.GetEACC().SendAuthCodeByEmail(email); err != nil {
 		return err
 	}
 	return nil

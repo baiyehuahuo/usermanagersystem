@@ -10,20 +10,34 @@ import (
 	"github.com/jordan-wright/email"
 )
 
-var EACC EmailAuthCodeController
+var eacc EmailAuthCodeController
 
 type EmailAuthCodeController interface {
+	CheckAuthCodeByEmail(target string, code int) bool
 	SendAuthCodeByEmail(target string) error
 }
 
 func EmailAuthCodeControllerCreate() {
 	rand.Seed(time.Now().Unix())
-	EACC = &emailAuthCodeControllerImpl{}
+	eacc = &emailAuthCodeControllerImpl{}
+}
+
+func GetEACC() EmailAuthCodeController {
+	return eacc
 }
 
 // todo 以下是实现
 
 type emailAuthCodeControllerImpl struct {
+}
+
+func (e *emailAuthCodeControllerImpl) CheckAuthCodeByEmail(target string, code int) bool {
+	correct, ok := cc.GetAuthCode(target)
+	success := ok && correct == code
+	if success {
+		cc.DeleteAuthCode(target)
+	}
+	return success
 }
 
 func (e *emailAuthCodeControllerImpl) SendAuthCodeByEmail(target string) error {
@@ -36,7 +50,7 @@ func (e *emailAuthCodeControllerImpl) SendAuthCodeByEmail(target string) error {
 	em.Subject = consts.AuthEmailSubject
 
 	authCode := rand.Intn(consts.AuthCodeRandRange)
-	CC.SetAuthCode(target, authCode)
+	cc.SetAuthCode(target, authCode)
 	em.Text = []byte(fmt.Sprintf("Hello World!! %06d", authCode))
 
 	err := em.Send(config.Addr, smtp.PlainAuth("", config.UserName, config.Password, config.Host))
