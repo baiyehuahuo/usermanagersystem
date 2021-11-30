@@ -42,6 +42,7 @@ func main() {
 	router.LoadHTMLGlob("templates/*")   // html 文件
 	router.Static("/static", "./static") // 静态文件映射
 	router.Static("/avatar", "./uploadfiles/avatars")
+	router.Static("/movie", "./uploadfiles/movies")
 	router.GET("/", htmlManager.ToLogin)
 	router.GET("/UserManage", htmlManager.ToUserManage)
 

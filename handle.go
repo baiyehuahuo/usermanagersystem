@@ -104,11 +104,15 @@ func (handle *handleManager) SendAuthCode(c *gin.Context) {
 
 func UploadFilePathCreate() (err error) {
 	if err = os.MkdirAll(consts.DefaultUserFilePath, os.ModePerm); err != nil {
-		log.Print("目录创建失败", err)
+		log.Print("目录创建失败 ", err)
 		return err
 	}
 	if err = os.MkdirAll(consts.DefaultAvatarPath, os.ModePerm); err != nil {
-		log.Print("目录创建失败", err)
+		log.Print("目录创建失败 ", err)
+		return err
+	}
+	if err = os.MkdirAll(consts.DefaultMoviewPath, os.ModePerm); err != nil {
+		log.Print("创建目录失败 ", err)
 		return err
 	}
 	return nil

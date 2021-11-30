@@ -12,6 +12,7 @@ const (
 	DefaultFileRootPath = "uploadfiles"
 	DefaultUserFilePath = DefaultFileRootPath + "/userfiles"
 	DefaultAvatarPath   = DefaultFileRootPath + "/avatars"
+	DefaultMoviewPath   = DefaultFileRootPath + "/movies"
 	DefaultAvatarSuffix = "avatar"
 
 	CookieNameOfUser       = "UserCookie"
