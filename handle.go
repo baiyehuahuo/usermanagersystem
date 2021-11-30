@@ -102,12 +102,12 @@ func (handle *handleManager) SendAuthCode(c *gin.Context) {
 	c.JSON(http.StatusOK, consts.SendAuthCodeSuccess)
 }
 
-func UploadFilePathCreate() error {
-	if err := os.MkdirAll(consts.DefaultUserFilePath, os.ModePerm); err != nil {
+func UploadFilePathCreate() (err error) {
+	if err = os.MkdirAll(consts.DefaultUserFilePath, os.ModePerm); err != nil {
 		log.Print("目录创建失败", err)
 		return err
 	}
-	if err := os.MkdirAll(consts.DefaultAvatarPath, os.ModePerm); err != nil {
+	if err = os.MkdirAll(consts.DefaultAvatarPath, os.ModePerm); err != nil {
 		log.Print("目录创建失败", err)
 		return err
 	}

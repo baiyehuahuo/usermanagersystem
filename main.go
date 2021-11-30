@@ -12,23 +12,24 @@ import (
 )
 
 func init() {
-	if err := utils.ConfigRead(); err != nil {
+	var err error
+	if err = utils.ConfigRead(); err != nil {
 		log.Fatal(err)
 	}
 
-	if err := utils.ConnectDatabase(); err != nil {
+	if err = utils.ConnectDatabase(); err != nil {
 		log.Fatal(err)
 	}
 
-	if err := utils.ConnectToRedis(); err != nil {
+	if err = utils.ConnectToRedis(); err != nil {
 		log.Fatal(err)
 	}
 
-	if err := utils.NewCache(consts.AuthCodeContinueTime, consts.AuthCodeCacheFlushTime); err != nil {
+	if err = utils.NewCache(consts.AuthCodeContinueTime, consts.AuthCodeCacheFlushTime); err != nil {
 		log.Fatal(err)
 	}
 
-	if err := UploadFilePathCreate(); err != nil {
+	if err = UploadFilePathCreate(); err != nil {
 		log.Fatal(err)
 	}
 	utils.EmailAuthCodeControllerCreate()

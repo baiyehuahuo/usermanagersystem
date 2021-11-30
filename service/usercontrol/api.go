@@ -8,12 +8,12 @@ import (
 )
 
 type UserController interface {
-	getAccountByCookie(c *gin.Context) (string, error)
-	getUserByAccount(account string) (*model.User, error)
-	GetUserMessageByCookie(c *gin.Context) (*model.User, error)
-	ModifyPassword(c *gin.Context) error
-	UploadFile(c *gin.Context) error
-	UploadAvatar(c *gin.Context) error
+	getAccountByCookie(c *gin.Context) (account string, err error)
+	getUserByAccount(account string) (user *model.User, err error)
+	GetUserMessageByCookie(c *gin.Context) (user *model.User, err error)
+	ModifyPassword(c *gin.Context) (err error)
+	UploadFile(c *gin.Context) (err error)
+	UploadAvatar(c *gin.Context) (err error)
 }
 
 func New() UserController {

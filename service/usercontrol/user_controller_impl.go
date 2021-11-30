@@ -24,9 +24,8 @@ type userControllerImpl struct {
 }
 
 // GetUserMessageByCookie 通过Cookie获取用户信息
-func (uc *userControllerImpl) GetUserMessageByCookie(c *gin.Context) (*model.User, error) {
+func (uc *userControllerImpl) GetUserMessageByCookie(c *gin.Context) (user *model.User, err error) {
 	var account string
-	var err error
 
 	if account, err = uc.getAccountByCookie(c); err != nil {
 		return nil, err
@@ -36,9 +35,8 @@ func (uc *userControllerImpl) GetUserMessageByCookie(c *gin.Context) (*model.Use
 }
 
 // ModifyPassword 修改密码
-func (uc *userControllerImpl) ModifyPassword(c *gin.Context) error {
+func (uc *userControllerImpl) ModifyPassword(c *gin.Context) (err error) {
 	var account string
-	var err error
 
 	if account, err = uc.getAccountByCookie(c); err != nil {
 		return err
@@ -57,10 +55,9 @@ func (uc *userControllerImpl) ModifyPassword(c *gin.Context) error {
 }
 
 // UploadAvatar 上传头像
-func (uc *userControllerImpl) UploadAvatar(c *gin.Context) error {
+func (uc *userControllerImpl) UploadAvatar(c *gin.Context) (err error) {
 	var account string
 	var file *multipart.FileHeader
-	var err error
 
 	if account, err = uc.getAccountByCookie(c); err != nil {
 		return err
@@ -78,14 +75,17 @@ func (uc *userControllerImpl) UploadAvatar(c *gin.Context) error {
 		return err
 	}
 
+	if err = chmodFile(filePath, 0444); err != nil {
+		return err
+	}
+
 	return nil
 }
 
 // UploadFile 上传文件
-func (uc *userControllerImpl) UploadFile(c *gin.Context) error {
+func (uc *userControllerImpl) UploadFile(c *gin.Context) (err error) {
 	var account string
 	var file *multipart.FileHeader
-	var err error
 	if account, err = uc.getAccountByCookie(c); err != nil {
 		return err
 	}
@@ -107,8 +107,7 @@ func (uc *userControllerImpl) UploadFile(c *gin.Context) error {
 }
 
 // getAccount 通过cookie获取账户
-func (uc *userControllerImpl) getAccountByCookie(c *gin.Context) (string, error) {
-	var account string
+func (uc *userControllerImpl) getAccountByCookie(c *gin.Context) (account string, err error) {
 	if cookie, err := c.Cookie(consts.CookieNameOfUser); err == nil {
 		account, _ = uc.rc.Get(consts.RedisCookieHashPrefix + cookie)
 	}
@@ -118,25 +117,39 @@ func (uc *userControllerImpl) getAccountByCookie(c *gin.Context) (string, error)
 	return account, nil
 }
 
-func (uc *userControllerImpl) getUserByAccount(account string) (*model.User, error) {
-	user, err := uc.rc.GetUser(account)
+func (uc *userControllerImpl) getUserByAccount(account string) (user *model.User, err error) {
+	user, err = uc.rc.GetUser(account)
 	if user != nil && err == nil {
 		//log.Printf("get user %s from redis", account)
 		return user, nil
 	}
 	//log.Printf("not get user %s from redis %v: %v", account, user, err)
 	user = &model.User{Account: account}
-	if err := uc.db.Where(user).Take(user).Error; err == gorm.ErrRecordNotFound {
+	if err = uc.db.Where(user).Take(user).Error; err == gorm.ErrRecordNotFound {
 		return nil, err
 	}
 	return user, nil
 }
 
-func mkdir(userName string) (string, error) {
-	filePath := filepath.Join(consts.DefaultUserFilePath, userName, time.Now().Format("2006/01/02"))
-	if err := os.MkdirAll(filePath, os.ModePerm); err != nil {
+func mkdir(userName string) (filePath string, err error) {
+	filePath = filepath.Join(consts.DefaultUserFilePath, userName, time.Now().Format("2006/01/02"))
+	if err = os.MkdirAll(filePath, os.ModePerm); err != nil {
 		log.Print("目录创建失败", err)
 		return "", err
 	}
 	return filePath, nil
+}
+
+func chmodFile(filePath string, mod os.FileMode) (err error) {
+	f, err := os.Open(filePath)
+	if err != nil {
+		return err
+	}
+	if err = f.Chmod(mod); err != nil {
+		return err
+	}
+	if err = f.Close(); err != nil {
+		return err
+	}
+	return nil
 }

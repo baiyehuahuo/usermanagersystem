@@ -10,7 +10,7 @@ import (
 
 var Config model.ConfigModel
 
-func ConfigRead() error {
+func ConfigRead() (err error) {
 	file, err := os.Open("configs/config.yaml")
 	if err != nil {
 		return err

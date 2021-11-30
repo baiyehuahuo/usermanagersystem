@@ -8,13 +8,13 @@ import (
 
 type CacheController interface {
 	SetAuthCode(email string, authCode int)
-	GetAuthCode(email string) (int, bool)
+	GetAuthCode(email string) (authCode int, exist bool)
 	DeleteAuthCode(email string)
 }
 
 var cc CacheController
 
-func NewCache(authCodeTTL time.Duration, authCodeFlushTime time.Duration) error {
+func NewCache(authCodeTTL time.Duration, authCodeFlushTime time.Duration) (err error) {
 	cc = &cacheContollerImpl{
 		ac: cache.New(authCodeTTL, authCodeFlushTime),
 	}
@@ -36,12 +36,12 @@ func (cc *cacheContollerImpl) DeleteAuthCode(email string) {
 	cc.ac.Delete(email)
 }
 
-func (cc *cacheContollerImpl) GetAuthCode(email string) (int, bool) {
-	authCode, ok := cc.ac.Get(email)
+func (cc *cacheContollerImpl) GetAuthCode(email string) (authCode int, exist bool) {
+	authCodePointer, ok := cc.ac.Get(email)
 	if !ok {
 		return 0, false
 	}
-	return authCode.(int), true
+	return authCodePointer.(int), true
 }
 
 func (cc *cacheContollerImpl) SetAuthCode(email string, authCode int) {
