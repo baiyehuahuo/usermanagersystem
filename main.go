@@ -3,10 +3,13 @@ package main
 import (
 	"log"
 	"usermanagersystem/consts"
+	"usermanagersystem/model"
 	"usermanagersystem/service/htmlcontrol"
 	"usermanagersystem/service/logincontrol"
 	"usermanagersystem/service/usercontrol"
 	"usermanagersystem/utils"
+
+	"gorm.io/gorm"
 
 	"github.com/gin-gonic/gin"
 )
@@ -50,16 +53,20 @@ func main() {
 		lm: logincontrol.New(),
 		um: usercontrol.New(),
 	}
-
 	router.GET("/CheckAuthCode", handle.CheckAuthCode)
+	router.GET("/CheckEmailAvailable", handle.CheckEmailAvailable)
 	router.GET("/GetUserMessage", handle.GetUserMessageByCookie)
 	router.GET("/UserLogin", handle.UserLogin)
 	router.GET("/UserRegedit", handle.UserRegedit)
 	router.GET("/SendAuthCode", handle.SendAuthCode)
 
+	router.POST("/ModifyPassword", handle.ModifyPassword)
 	router.POST("/UploadAvatar", handle.UploadAvatar)
 	router.POST("/UploadFile", handle.UploadFile)
-	router.POST("/ModifyPassword", handle.ModifyPassword)
+
+	log.Println(utils.GetDB().ToSQL(func(tx *gorm.DB) *gorm.DB {
+		return tx.Where(model.User{Email: "6@qq.com"}).First(&model.User{})
+	}))
 	if err := router.Run(); err != nil {
 		log.Fatal(err)
 	}

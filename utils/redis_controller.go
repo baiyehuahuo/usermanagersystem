@@ -37,7 +37,7 @@ func ConnectToRedis() (err error) {
 	return err
 }
 
-// todo 以下是实现
+// just impl !!!!!!!!!!!
 
 type redisControllerImpl struct {
 	client *redis.Client

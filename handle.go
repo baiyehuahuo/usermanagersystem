@@ -17,6 +17,8 @@ type handleManager struct {
 	um usercontrol.UserController
 }
 
+// todo 参数校验
+
 // CheckAuthCode 验证码检测处理接口
 func (handle *handleManager) CheckAuthCode(c *gin.Context) {
 	if err := handle.lm.CheckAuthCode(c); err != nil {
@@ -25,6 +27,16 @@ func (handle *handleManager) CheckAuthCode(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, consts.CheckAuthCodeSuccess)
+}
+
+// CheckEmailAvailable 验证码检测处理接口
+func (handle *handleManager) CheckEmailAvailable(c *gin.Context) {
+	if err := handle.lm.CheckEmailAvaiable(c); err != nil {
+		log.Printf("CheckEmailAvailable Fail: %v", err)
+		c.JSON(http.StatusInternalServerError, consts.EmailUnavailable)
+		return
+	}
+	c.JSON(http.StatusOK, consts.EmailAvailable)
 }
 
 // GetUserMessageByCookie 通过Cookie获取用户信息处理接口

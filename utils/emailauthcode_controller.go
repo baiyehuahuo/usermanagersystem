@@ -26,7 +26,7 @@ func GetEACC() EmailAuthCodeController {
 	return eacc
 }
 
-// todo 以下是实现
+// just impl !!!!!!!!!!!
 
 type emailAuthCodeControllerImpl struct {
 }

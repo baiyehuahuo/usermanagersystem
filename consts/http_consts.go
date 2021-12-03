@@ -20,4 +20,9 @@ const (
 
 	CheckAuthCodeSuccess = "Auth Success"
 	CheckAuthCodeFail    = "Auth Fail"
+
+	EmailAvailable   = "Email Available"
+	EmailUnavailable = "Email Unavailable"
+
+	InputParamsError = "input params error"
 )

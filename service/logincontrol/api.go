@@ -11,6 +11,7 @@ type LoginController interface {
 	UserRegedit(c *gin.Context) error
 	SendAuthCode(c *gin.Context) error
 	CheckAuthCode(c *gin.Context) error
+	CheckEmailAvaiable(c *gin.Context) error
 }
 
 func New() LoginController {

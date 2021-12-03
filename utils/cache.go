@@ -26,7 +26,7 @@ func GetCC() CacheController {
 	return cc
 }
 
-// todo 以下是实现
+// just impl !!!!!!!!!!!
 
 type cacheContollerImpl struct {
 	ac *cache.Cache

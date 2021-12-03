@@ -19,14 +19,34 @@
 
 ### 后端接口
 
-| 接口名         | 说明         | 方法 |
-| -------------- | ------------ | ---- |
-| GetUserMessage | 获取用户信息 | GET  |
-| ModifyPassword | 修改密码     | POST |
-| UploadAvatar   | 上传头像     | POST |
-| UploadFile     | 上传文件     | POST |
-| UserLogin      | 用户登录     | GET  |
-| UserRegedit    | 用户注册     | GET  |
+| 接口名              | 说明           | 方法 |
+| ------------------- | -------------- | ---- |
+| CheckAuthCode       | 检测验证码     | GET  |
+| CheckEmailAvailable | 检测邮箱可用   | GET  |
+| GetUserMessage      | 获取用户信息   | GET  |
+| ModifyPassword      | 修改密码       | POST |
+| UploadAvatar        | 上传头像       | POST |
+| UploadFile          | 上传文件       | POST |
+| UserLogin           | 用户登录       | GET  |
+| UserRegedit         | 用户注册       | GET  |
+| SendAuthCode        | 发送邮箱验证码 | GET  |
+
+#### CheckAuthCode
+
+GET：检测验证码
+
+| 字段名    | 类型   | 说明       | 必选 |
+| --------- | ------ | ---------- | ---- |
+| email     | string | 邮箱       | √    |
+| auth_code | int    | 对应验证码 | √    |
+
+#### CheckEmailAvailable
+
+GET：检测邮箱可用
+
+| 字段名 | 类型   | 说明 | 必选 |
+| ------ | ------ | ---- | ---- |
+| email  | string | 邮箱 | √    |
 
 #### GetUserMessage
 
@@ -77,4 +97,17 @@ GET：用户注册
 | email    | string | 邮箱   | √    |
 | nick_name | string | 昵称   | √    |
 
-TODO：需要界面，然后改成 POST，前后端都需要检测邮箱是否合法 后端还需要检测邮箱是否已被注册）
+#### SendAuthCode
+
+GET：发送邮箱验证码 
+
+| 字段名 | 类型   | 说明 | 必选 |
+| ------ | ------ | ---- | ---- |
+| email  | string | 邮箱 | √    |
+
+TODO：
+
+1. 需要界面
+2. 修改一些GET为POST
+3. 前后端都需要检测邮箱是否合法
+4. 参数校验改到 `handle.go` 中

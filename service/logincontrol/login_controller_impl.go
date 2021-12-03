@@ -33,6 +33,19 @@ func (loginController *loginControllerImpl) CheckAuthCode(c *gin.Context) (err e
 	return nil
 }
 
+func (loginController *loginControllerImpl) CheckEmailAvaiable(c *gin.Context) error {
+	email := c.Query("email")
+	if email == "" {
+		return errors.New(consts.InputParamsError)
+	}
+
+	user := model.User{Email: email}
+	if err := utils.GetDB().Where(&user).Take(&user).Error; err != gorm.ErrRecordNotFound {
+		return errors.New(consts.InputParamsError)
+	}
+	return nil
+}
+
 func (loginController *loginControllerImpl) UserLogin(c *gin.Context) (err error) {
 	user := model.User{
 		Account:  c.Query("account"),
