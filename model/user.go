@@ -9,7 +9,8 @@ type User struct {
 }
 
 type UserMessage struct {
-	Account  string `json:"account"`
-	Email    string `json:"email"`
-	NickName string `json:"nick_name"`
+	Account    string `json:"account"`
+	Email      string `json:"email"`
+	NickName   string `json:"nick_name"`
+	AvatarPath string `json:"avatar_path"`
 }

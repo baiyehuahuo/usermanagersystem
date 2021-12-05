@@ -60,9 +60,10 @@ func (handle *handleManager) GetUserMessageByCookie(c *gin.Context) {
 		return
 	}
 	result := model.UserMessage{
-		Account:  user.Account,
-		Email:    user.Email,
-		NickName: user.NickName,
+		Account:    user.Account,
+		Email:      user.Email,
+		NickName:   user.NickName,
+		AvatarPath: "", // todo 计算avatar路径
 	}
 	c.JSON(http.StatusOK, result)
 }
