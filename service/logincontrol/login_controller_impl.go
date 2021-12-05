@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"strconv"
 	"time"
 	"usermanagersystem/consts"
 	"usermanagersystem/model"
@@ -21,35 +20,25 @@ type loginControllerImpl struct {
 	rc utils.RedisController
 }
 
-func (loginController *loginControllerImpl) CheckAuthCode(c *gin.Context) (err error) {
-	email := c.Query("email")
-	authCode, err := strconv.Atoi(c.Query("auth_code"))
-	if err != nil {
-		return err
-	}
+func (loginController *loginControllerImpl) CheckAuthCode(c *gin.Context, email string, authCode int) (err error) {
 	if !utils.GetEACC().CheckAuthCodeByEmail(email, authCode) {
 		return errors.New(consts.CheckAuthCodeFail)
 	}
 	return nil
 }
 
-func (loginController *loginControllerImpl) CheckEmailAvaiable(c *gin.Context) error {
-	email := c.Query("email")
-	if email == "" {
-		return errors.New(consts.InputParamsError)
-	}
-
+func (loginController *loginControllerImpl) CheckEmailAvaiable(c *gin.Context, email string) error {
 	user := model.User{Email: email}
 	if err := utils.GetDB().Where(&user).Take(&user).Error; err != gorm.ErrRecordNotFound {
-		return errors.New(consts.InputParamsError)
+		return errors.New(consts.EmailUnavailable)
 	}
 	return nil
 }
 
-func (loginController *loginControllerImpl) UserLogin(c *gin.Context) (err error) {
+func (loginController *loginControllerImpl) UserLogin(c *gin.Context, account string, password string) (err error) {
 	user := model.User{
-		Account:  c.Query("account"),
-		Password: fmt.Sprintf("%x", md5.Sum([]byte(c.Query("password")))),
+		Account:  account,
+		Password: fmt.Sprintf("%x", md5.Sum([]byte(password))),
 	}
 	if err = utils.GetDB().Where(&user).Take(&user).Error; err == gorm.ErrRecordNotFound {
 		return err
@@ -71,7 +60,7 @@ func (loginController *loginControllerImpl) UserLogin(c *gin.Context) (err error
 	return nil
 }
 
-func (loginController *loginControllerImpl) UserRegedit(c *gin.Context) (err error) {
+func (loginController *loginControllerImpl) UserRegedit(c *gin.Context, account string, password string, email string, nickName string) (err error) {
 	user := model.User{
 		Account:  c.Query("account"),
 		Password: fmt.Sprintf("%x", md5.Sum([]byte(c.Query("password")))),
@@ -85,8 +74,7 @@ func (loginController *loginControllerImpl) UserRegedit(c *gin.Context) (err err
 	return nil
 }
 
-func (loginController *loginControllerImpl) SendAuthCode(c *gin.Context) (err error) {
-	email := c.Query("email")
+func (loginController *loginControllerImpl) SendAuthCode(c *gin.Context, email string) (err error) {
 	if err = utils.GetEACC().SendAuthCodeByEmail(email); err != nil {
 		return err
 	}

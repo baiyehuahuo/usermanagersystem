@@ -35,19 +35,19 @@ func (uc *userControllerImpl) GetUserMessageByCookie(c *gin.Context) (user *mode
 }
 
 // ModifyPassword 修改密码
-func (uc *userControllerImpl) ModifyPassword(c *gin.Context) (err error) {
+func (uc *userControllerImpl) ModifyPassword(c *gin.Context, oldPassword string, newPassword string) (err error) {
 	var account string
 
 	if account, err = uc.getAccountByCookie(c); err != nil {
 		return err
 	}
-	oldPassword := fmt.Sprintf("%x", md5.Sum([]byte(c.PostForm("oldPassword"))))
-	newPassword := fmt.Sprintf("%x", md5.Sum([]byte(c.PostForm("newPassword"))))
+	oldPasswordMD5 := fmt.Sprintf("%x", md5.Sum([]byte(oldPassword)))
+	newPasswordMD5 := fmt.Sprintf("%x", md5.Sum([]byte(newPassword)))
 	user := model.User{
 		Account:  account,
-		Password: oldPassword,
+		Password: oldPasswordMD5,
 	}
-	if rows := uc.db.Where(&user).Updates(&model.User{Password: newPassword}).RowsAffected; rows == 0 {
+	if rows := uc.db.Where(&user).Updates(&model.User{Password: newPasswordMD5}).RowsAffected; rows == 0 {
 		return errors.New(consts.UpdatePasswordFail)
 	}
 

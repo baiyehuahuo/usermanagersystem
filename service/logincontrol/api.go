@@ -7,11 +7,11 @@ import (
 )
 
 type LoginController interface {
-	UserLogin(c *gin.Context) error
-	UserRegedit(c *gin.Context) error
-	SendAuthCode(c *gin.Context) error
-	CheckAuthCode(c *gin.Context) error
-	CheckEmailAvaiable(c *gin.Context) error
+	UserLogin(c *gin.Context, account string, password string) error
+	UserRegedit(c *gin.Context, account string, password string, email string, nickName string) error
+	SendAuthCode(c *gin.Context, email string) error
+	CheckAuthCode(c *gin.Context, email string, authCode int) error
+	CheckEmailAvaiable(c *gin.Context, email string) error
 }
 
 func New() LoginController {

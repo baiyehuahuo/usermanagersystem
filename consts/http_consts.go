@@ -24,5 +24,5 @@ const (
 	EmailAvailable   = "Email Available"
 	EmailUnavailable = "Email Unavailable"
 
-	InputParamsError = "input params error"
+	InputParamsError = "Input Params Error"
 )

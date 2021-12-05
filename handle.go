@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 	"usermanagersystem/consts"
 	"usermanagersystem/model"
 	"usermanagersystem/service/logincontrol"
@@ -17,11 +18,17 @@ type handleManager struct {
 	um usercontrol.UserController
 }
 
-// todo 参数校验
+// get post 参数在本层校验
 
 // CheckAuthCode 验证码检测处理接口
 func (handle *handleManager) CheckAuthCode(c *gin.Context) {
-	if err := handle.lm.CheckAuthCode(c); err != nil {
+	email := c.Query("email")
+	authCode, err := strconv.Atoi(c.Query("auth_code"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, consts.InputParamsError)
+		return
+	}
+	if err := handle.lm.CheckAuthCode(c, email, authCode); err != nil {
 		log.Printf("CheckAuthCode Fail: %v", err)
 		c.JSON(http.StatusInternalServerError, consts.CheckAuthCodeFail)
 		return
@@ -31,7 +38,12 @@ func (handle *handleManager) CheckAuthCode(c *gin.Context) {
 
 // CheckEmailAvailable 验证码检测处理接口
 func (handle *handleManager) CheckEmailAvailable(c *gin.Context) {
-	if err := handle.lm.CheckEmailAvaiable(c); err != nil {
+	email := c.Query("email")
+	if email == "" {
+		c.JSON(http.StatusInternalServerError, consts.InputParamsError)
+		return
+	}
+	if err := handle.lm.CheckEmailAvaiable(c, email); err != nil {
 		log.Printf("CheckEmailAvailable Fail: %v", err)
 		c.JSON(http.StatusInternalServerError, consts.EmailUnavailable)
 		return
@@ -57,7 +69,14 @@ func (handle *handleManager) GetUserMessageByCookie(c *gin.Context) {
 
 // ModifyPassword 修改密码处理接口
 func (handle *handleManager) ModifyPassword(c *gin.Context) {
-	if err := handle.um.ModifyPassword(c); err != nil {
+	oldPassword := c.PostForm("oldPassword")
+	newPassword := c.PostForm("newPassword")
+	if oldPassword == "" || newPassword == "" {
+		c.JSON(http.StatusInternalServerError, consts.InputParamsError)
+		return
+	}
+
+	if err := handle.um.ModifyPassword(c, oldPassword, newPassword); err != nil {
 		log.Printf("ModifyPassword Fail: %v", err)
 		c.JSON(http.StatusInternalServerError, consts.ModifyPasswordFail)
 		return
@@ -67,7 +86,14 @@ func (handle *handleManager) ModifyPassword(c *gin.Context) {
 
 // UserLogin 用户登录处理接口
 func (handle *handleManager) UserLogin(c *gin.Context) {
-	if err := handle.lm.UserLogin(c); err != nil {
+	account := c.Query("account")
+	password := c.Query("password")
+	if account == "" || password == "" {
+		c.JSON(http.StatusInternalServerError, consts.InputParamsError)
+		return
+	}
+
+	if err := handle.lm.UserLogin(c, account, password); err != nil {
 		log.Printf("Login Fail: %v", err)
 		c.JSON(http.StatusInternalServerError, consts.LoginFail)
 		return
@@ -77,7 +103,16 @@ func (handle *handleManager) UserLogin(c *gin.Context) {
 
 // UserRegedit 用户注册处理接口
 func (handle *handleManager) UserRegedit(c *gin.Context) {
-	if err := handle.lm.UserRegedit(c); err != nil {
+	account := c.Query("account")
+	password := c.Query("password")
+	email := c.Query("email")
+	nickName := c.Query("nick_name")
+	if account == "" || password == "" || email == "" || nickName == "" {
+		c.JSON(http.StatusInternalServerError, consts.InputParamsError)
+		return
+	}
+
+	if err := handle.lm.UserRegedit(c, account, password, email, nickName); err != nil {
 		log.Printf("Regedit Fail: %v", err)
 		c.JSON(http.StatusInternalServerError, consts.RegeditFail)
 		return
@@ -107,9 +142,16 @@ func (handle *handleManager) UploadAvatar(c *gin.Context) {
 
 // SendAuthCode 发送验证码处理接口
 func (handle *handleManager) SendAuthCode(c *gin.Context) {
-	if err := handle.lm.SendAuthCode(c); err != nil {
+	email := c.Query("email")
+	if email == "" {
+		c.JSON(http.StatusInternalServerError, consts.InputParamsError)
+		return
+	}
+
+	if err := handle.lm.SendAuthCode(c, email); err != nil {
 		log.Printf("SendAuthCode Fail: %v", err)
 		c.JSON(http.StatusInternalServerError, consts.SendAuthCodeFail)
+		return
 	}
 	c.JSON(http.StatusOK, consts.SendAuthCodeSuccess)
 }
