@@ -69,15 +69,19 @@ func (uc *userControllerImpl) UploadAvatar(c *gin.Context) (err error) {
 
 	filePath := filepath.Join(consts.DefaultAvatarPath, fmt.Sprintf("%s_%s%s", account, consts.DefaultAvatarSuffix,
 		path.Ext(file.Filename)))
-	// todo 保存ext到数据库中
 
+	if err = utils.GetDB().Where(&model.User{Account: account}).Updates(&model.User{AvatarExt: path.Ext(file.Filename)}).Error; err != nil {
+		return err
+	}
+
+	// todo 如果保存文件失败 那数据库里的数据怎么办？
 	if err = c.SaveUploadedFile(file, filePath); err != nil { // todo 删除旧头像
 		return err
 	}
 
-	if err = chmodFile(filePath, 0444); err != nil {
-		return err
-	}
+	// if err = chmodFile(filePath, 0444); err != nil {
+	// 	return err
+	// }
 
 	return nil
 }
@@ -120,10 +124,10 @@ func (uc *userControllerImpl) getAccountByCookie(c *gin.Context) (account string
 func (uc *userControllerImpl) getUserByAccount(account string) (user *model.User, err error) {
 	user, err = uc.rc.GetUser(account)
 	if user != nil && err == nil {
-		//log.Printf("get user %s from redis", account)
+		// log.Printf("get user %s from redis", account)
 		return user, nil
 	}
-	//log.Printf("not get user %s from redis %v: %v", account, user, err)
+	// log.Printf("not get user %s from redis %v: %v", account, user, err)
 	user = &model.User{Account: account}
 	if err = uc.db.Where(user).Take(user).Error; err == gorm.ErrRecordNotFound {
 		return nil, err
