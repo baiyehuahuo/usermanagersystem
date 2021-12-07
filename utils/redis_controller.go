@@ -81,5 +81,5 @@ func (r *redisControllerImpl) GetUser(account string) (user *model.User, err err
 }
 
 func (r *redisControllerImpl) DeleteUser(account string) (err error) {
-	return r.client.Del(account).Err()
+	return r.client.Del(consts.RedisUserMessagePrefix + account).Err()
 }

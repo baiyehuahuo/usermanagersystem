@@ -94,7 +94,7 @@ func (uc *userControllerImpl) UploadAvatar(c *gin.Context) (err error) {
 	}
 
 	// todo 如果保存文件失败 那数据库里的数据怎么办？
-	fmt.Println(filePath)
+	// fmt.Println(filePath)
 	if err = c.SaveUploadedFile(file, filePath); err != nil { // todo 删除旧头像
 		return err
 	}
