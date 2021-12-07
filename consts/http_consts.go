@@ -1,6 +1,8 @@
 package consts
 
 const (
+	HttpDomain = "127.0.0.1:8080"
+
 	LoginSuccess = "Login Success"
 	LoginFail    = "Login Fail"
 

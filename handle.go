@@ -9,6 +9,7 @@ import (
 	"usermanagersystem/model"
 	"usermanagersystem/service/logincontrol"
 	"usermanagersystem/service/usercontrol"
+	"usermanagersystem/utils"
 
 	"github.com/gin-gonic/gin"
 )
@@ -63,7 +64,7 @@ func (handle *handleManager) GetUserMessageByCookie(c *gin.Context) {
 		Account:    user.Account,
 		Email:      user.Email,
 		NickName:   user.NickName,
-		AvatarPath: "", // todo 计算avatar路径
+		AvatarPath: utils.GetNetAvatarPath(user.Account, user.AvatarExt),
 	}
 	c.JSON(http.StatusOK, result)
 }
@@ -166,9 +167,9 @@ func UploadFilePathCreate() (err error) {
 		log.Print("目录创建失败 ", err)
 		return err
 	}
-	if err = os.MkdirAll(consts.DefaultMoviewPath, os.ModePerm); err != nil {
-		log.Print("创建目录失败 ", err)
-		return err
-	}
+	// if err = os.MkdirAll(consts.DefaultMoviewPath, os.ModePerm); err != nil {
+	// 	log.Print("创建目录失败 ", err)
+	// 	return err
+	// }
 	return nil
 }

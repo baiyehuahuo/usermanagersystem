@@ -18,6 +18,7 @@ type RedisController interface {
 
 	SetUser(user model.User) (err error)
 	GetUser(account string) (user *model.User, err error)
+	DeleteUser(account string) (err error)
 }
 
 func RedisNew() RedisController {
@@ -77,4 +78,8 @@ func (r *redisControllerImpl) GetUser(account string) (user *model.User, err err
 		return nil, err
 	}
 	return user, nil
+}
+
+func (r *redisControllerImpl) DeleteUser(account string) (err error) {
+	return r.client.Del(account).Err()
 }

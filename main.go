@@ -2,14 +2,12 @@ package main
 
 import (
 	"log"
+	"os"
 	"usermanagersystem/consts"
-	"usermanagersystem/model"
 	"usermanagersystem/service/htmlcontrol"
 	"usermanagersystem/service/logincontrol"
 	"usermanagersystem/service/usercontrol"
 	"usermanagersystem/utils"
-
-	"gorm.io/gorm"
 
 	"github.com/gin-gonic/gin"
 )
@@ -42,10 +40,10 @@ func init() {
 func main() {
 	router := gin.Default()
 	htmlManager := htmlcontrol.New()
-	router.LoadHTMLGlob("templates/*")   // html 文件
-	router.Static("/static", "./static") // 静态文件映射
-	router.Static("/avatar", "./uploadfiles/avatars")
-	router.Static("/movie", "./uploadfiles/movies")
+	router.LoadHTMLGlob("templates/*")                                // html 文件
+	router.Static(consts.DefaultStaticPath, consts.DefaultStaticPath) // 静态文件映射
+	router.Static(consts.DefaultAvatarPath, consts.DefaultAvatarPath)
+	// router.Static("/movie", "./uploadfiles/movies")
 	router.GET("/", htmlManager.ToLogin)
 	router.GET("/UserManage", htmlManager.ToUserManage)
 
@@ -63,10 +61,12 @@ func main() {
 	router.POST("/ModifyPassword", handle.ModifyPassword)
 	router.POST("/UploadAvatar", handle.UploadAvatar)
 	router.POST("/UploadFile", handle.UploadFile)
-
-	log.Println(utils.GetDB().ToSQL(func(tx *gorm.DB) *gorm.DB {
-		return tx.Where(model.User{Email: "6@qq.com"}).First(&model.User{})
-	}))
+	if err := os.MkdirAll(consts.DefaultAvatarPath, os.ModePerm); err != nil {
+		log.Fatal("目录创建失败 ", err)
+	}
+	// log.Println(utils.GetDB().ToSQL(func(tx *gorm.DB) *gorm.DB {
+	// 	return tx.Where(model.User{Email: "6@qq.com"}).First(&model.User{})
+	// }))
 	if err := router.Run(); err != nil {
 		log.Fatal(err)
 	}

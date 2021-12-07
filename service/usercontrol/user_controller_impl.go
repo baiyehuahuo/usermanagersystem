@@ -1,6 +1,7 @@
 package usercontrol
 
 import (
+	"bytes"
 	"crypto/md5"
 	"errors"
 	"fmt"
@@ -67,18 +68,40 @@ func (uc *userControllerImpl) UploadAvatar(c *gin.Context) (err error) {
 		return err
 	}
 
-	filePath := filepath.Join(consts.DefaultAvatarPath, fmt.Sprintf("%s_%s%s", account, consts.DefaultAvatarSuffix,
-		path.Ext(file.Filename)))
+	filePath := filepath.Join(consts.DefaultAvatarPath, fmt.Sprintf("%s_%s%s", account, consts.DefaultAvatarSuffix, path.Ext(file.Filename)))
 
-	if err = utils.GetDB().Where(&model.User{Account: account}).Updates(&model.User{AvatarExt: path.Ext(file.Filename)}).Error; err != nil {
+	user := model.User{Account: account}
+	if err = utils.GetDB().Where(&user).Take(&user).Error; err != nil {
+		return err
+	}
+	if user.AvatarExt != "" {
+		if err = uc.rc.DeleteUser(account); err != nil {
+			return err
+		}
+		buffer := bytes.Buffer{}
+		buffer.WriteString(consts.DefaultAvatarPath)
+		buffer.WriteByte('/')
+		buffer.WriteString(user.Account)
+		buffer.WriteByte('_')
+		buffer.WriteString(consts.DefaultAvatarSuffix)
+		buffer.WriteString(user.AvatarExt)
+		if err = os.Remove(buffer.String()); err != nil {
+			return err
+		}
+	}
+	if err = utils.GetDB().Where(&user).Updates(&model.User{AvatarExt: path.Ext(file.Filename)}).Error; err != nil {
 		return err
 	}
 
 	// todo 如果保存文件失败 那数据库里的数据怎么办？
+	fmt.Println(filePath)
 	if err = c.SaveUploadedFile(file, filePath); err != nil { // todo 删除旧头像
 		return err
 	}
 
+	if err = uc.rc.DeleteUser(account); err != nil {
+		return err
+	}
 	// if err = chmodFile(filePath, 0444); err != nil {
 	// 	return err
 	// }
@@ -130,6 +153,9 @@ func (uc *userControllerImpl) getUserByAccount(account string) (user *model.User
 	// log.Printf("not get user %s from redis %v: %v", account, user, err)
 	user = &model.User{Account: account}
 	if err = uc.db.Where(user).Take(user).Error; err == gorm.ErrRecordNotFound {
+		return nil, err
+	}
+	if err = uc.rc.SetUser(*user); err != nil {
 		return nil, err
 	}
 	return user, nil
