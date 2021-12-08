@@ -55,7 +55,7 @@ func main() {
 	router.GET("/CheckEmailAvailable", handle.CheckEmailAvailable)
 	router.GET("/GetUserMessage", handle.GetUserMessageByCookie)
 	router.GET("/UserLogin", handle.UserLogin)
-	router.GET("/UserRegedit", handle.UserRegedit)
+	router.GET("/UserRegedit", handle.UserRegister)
 	router.GET("/SendAuthCode", handle.SendAuthCode)
 
 	router.POST("/ModifyPassword", handle.ModifyPassword)

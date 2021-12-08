@@ -29,6 +29,7 @@ func (handle *handleManager) CheckAuthCode(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, consts.InputParamsError)
 		return
 	}
+
 	if err := handle.lm.CheckAuthCode(c, email, authCode); err != nil {
 		log.Printf("CheckAuthCode Fail: %v", err)
 		c.JSON(http.StatusInternalServerError, consts.CheckAuthCodeFail)
@@ -44,7 +45,7 @@ func (handle *handleManager) CheckEmailAvailable(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, consts.InputParamsError)
 		return
 	}
-	if err := handle.lm.CheckEmailAvaiable(c, email); err != nil {
+	if err := handle.lm.CheckEmailAvailable(c, email); err != nil {
 		log.Printf("CheckEmailAvailable Fail: %v", err)
 		c.JSON(http.StatusInternalServerError, consts.EmailUnavailable)
 		return
@@ -104,7 +105,7 @@ func (handle *handleManager) UserLogin(c *gin.Context) {
 }
 
 // UserRegedit 用户注册处理接口
-func (handle *handleManager) UserRegedit(c *gin.Context) {
+func (handle *handleManager) UserRegister(c *gin.Context) {
 	account := c.Query("account")
 	password := c.Query("password")
 	email := c.Query("email")
@@ -114,7 +115,7 @@ func (handle *handleManager) UserRegedit(c *gin.Context) {
 		return
 	}
 
-	if err := handle.lm.UserRegedit(c, account, password, email, nickName); err != nil {
+	if err := handle.lm.UserRegister(c, account, password, email, nickName); err != nil {
 		log.Printf("Regedit Fail: %v", err)
 		c.JSON(http.StatusInternalServerError, consts.RegeditFail)
 		return
