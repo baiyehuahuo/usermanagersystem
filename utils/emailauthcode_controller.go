@@ -7,8 +7,6 @@ import (
 	"time"
 	"usermanagersystem/consts"
 
-	"github.com/pkg/errors"
-
 	"github.com/jordan-wright/email"
 )
 
@@ -57,7 +55,7 @@ func (e *emailAuthCodeControllerImpl) SendAuthCodeByEmail(target string) (err er
 
 	err = em.Send(config.Addr, smtp.PlainAuth("", config.UserName, config.Password, config.Host))
 	if err != nil {
-		return errors.Wrap(err, RunFuncNameWithFail())
+		return ErrWrapOrWithMessage(true, err)
 	}
 	return nil
 }

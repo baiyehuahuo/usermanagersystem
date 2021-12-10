@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"runtime"
 	"usermanagersystem/consts"
+
+	"github.com/pkg/errors"
 )
 
 // GetNetAvatarPath 获取头像的网络路径
@@ -34,11 +36,14 @@ func GetLocalAvatarPath(account string, avatarExt string) string {
 	return buffer.String()
 }
 
-// RunFuncNameWithFail 获取正在运行的函数名
-// todo 改成返回 errors.WithMessage 和 errors.Wrap
-func RunFuncNameWithFail() string {
+// ErrWrapOrWithMessage 给错误附加当前运行的函数名
+func ErrWrapOrWithMessage(wrap bool, err error) error {
 	pc := make([]uintptr, 1)
 	runtime.Callers(2, pc)
 	f := runtime.FuncForPC(pc[0])
-	return f.Name() + " fail\n"
+	message := f.Name() + " fail\n"
+	if wrap {
+		return errors.Wrap(err, message)
+	}
+	return errors.WithMessage(err, message)
 }

@@ -7,8 +7,6 @@ import (
 	"usermanagersystem/consts"
 	"usermanagersystem/model"
 
-	"github.com/pkg/errors"
-
 	"github.com/go-redis/redis"
 )
 
@@ -38,7 +36,7 @@ func ConnectToRedis() (err error) {
 	})
 	_, err = redisClient.Ping().Result()
 	if err != nil {
-		return errors.Wrap(err, RunFuncNameWithFail())
+		return ErrWrapOrWithMessage(true, err)
 	}
 	return nil
 }
@@ -52,7 +50,7 @@ type redisControllerImpl struct {
 func (r *redisControllerImpl) Get(key string) (value string, err error) {
 	value, err = r.client.Get(key).Result()
 	if err != nil {
-		return "", errors.Wrap(err, RunFuncNameWithFail())
+		return "", ErrWrapOrWithMessage(true, err)
 	}
 
 	return value, nil
@@ -60,7 +58,7 @@ func (r *redisControllerImpl) Get(key string) (value string, err error) {
 
 func (r *redisControllerImpl) Set(key string, value interface{}, expiration time.Duration) (err error) {
 	if err = r.client.Set(key, value, expiration*time.Second).Err(); err != nil {
-		return errors.Wrap(err, RunFuncNameWithFail())
+		return ErrWrapOrWithMessage(true, err)
 	}
 	return nil
 }
@@ -68,11 +66,11 @@ func (r *redisControllerImpl) Set(key string, value interface{}, expiration time
 func (r *redisControllerImpl) SetUser(user model.User) (err error) {
 	datas, err := json.Marshal(user)
 	if err != nil {
-		return errors.Wrap(err, RunFuncNameWithFail())
+		return ErrWrapOrWithMessage(true, err)
 	}
 
 	if err = r.Set(consts.RedisUserMessagePrefix+user.Account, string(datas), consts.RedisUserMessageContinueTime); err != nil {
-		return errors.WithMessage(err, RunFuncNameWithFail())
+		return ErrWrapOrWithMessage(false, err)
 	}
 
 	return nil
@@ -81,11 +79,11 @@ func (r *redisControllerImpl) SetUser(user model.User) (err error) {
 func (r *redisControllerImpl) GetUser(account string) (user *model.User, err error) {
 	datas, err := r.Get(consts.RedisUserMessagePrefix + account)
 	if err != nil {
-		return nil, errors.WithMessage(err, RunFuncNameWithFail())
+		return nil, ErrWrapOrWithMessage(false, err)
 	}
 	user = &model.User{}
 	if err = json.Unmarshal([]byte(datas), user); err != nil {
-		return nil, errors.Wrap(err, RunFuncNameWithFail())
+		return nil, ErrWrapOrWithMessage(true, err)
 	}
 	return user, nil
 }
@@ -93,7 +91,7 @@ func (r *redisControllerImpl) GetUser(account string) (user *model.User, err err
 func (r *redisControllerImpl) DeleteUser(account string) (err error) {
 	err = r.client.Del(consts.RedisUserMessagePrefix + account).Err()
 	if err != nil {
-		return errors.Wrap(err, RunFuncNameWithFail())
+		return ErrWrapOrWithMessage(true, err)
 	}
 
 	return nil

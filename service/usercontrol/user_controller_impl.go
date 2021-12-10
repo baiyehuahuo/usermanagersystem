@@ -30,10 +30,10 @@ func (uc *userControllerImpl) GetUserMessageByCookie(c *gin.Context) (user *mode
 
 	if account, err = uc.getAccountByCookie(c); err != nil {
 		// return nil, err
-		return nil, errors.WithMessage(err, utils.RunFuncNameWithFail())
+		return nil, utils.ErrWrapOrWithMessage(false, err)
 	}
 	if user, err = uc.getUserByAccount(account); err != nil {
-		return nil, errors.WithMessage(err, utils.RunFuncNameWithFail())
+		return nil, utils.ErrWrapOrWithMessage(false, err)
 	}
 
 	return user, nil
@@ -44,7 +44,7 @@ func (uc *userControllerImpl) ModifyPassword(c *gin.Context, oldPassword string,
 	var account string
 
 	if account, err = uc.getAccountByCookie(c); err != nil {
-		return errors.WithMessage(err, utils.RunFuncNameWithFail())
+		return utils.ErrWrapOrWithMessage(false, err)
 	}
 	oldPasswordMD5 := fmt.Sprintf("%x", md5.Sum([]byte(oldPassword)))
 	newPasswordMD5 := fmt.Sprintf("%x", md5.Sum([]byte(newPassword)))
@@ -53,7 +53,7 @@ func (uc *userControllerImpl) ModifyPassword(c *gin.Context, oldPassword string,
 		Password: oldPasswordMD5,
 	}
 	if rows := uc.db.Where(&user).Updates(&model.User{Password: newPasswordMD5}).RowsAffected; rows == 0 {
-		return errors.Wrap(errors.New(consts.UpdatePasswordFail), utils.RunFuncNameWithFail())
+		return utils.ErrWrapOrWithMessage(true, errors.New(consts.UpdatePasswordFail))
 	}
 
 	return nil
@@ -65,39 +65,39 @@ func (uc *userControllerImpl) UploadAvatar(c *gin.Context) (err error) {
 	var file *multipart.FileHeader
 
 	if account, err = uc.getAccountByCookie(c); err != nil {
-		return errors.WithMessage(err, utils.RunFuncNameWithFail())
+		return utils.ErrWrapOrWithMessage(false, err)
 	}
 
 	if file, err = c.FormFile("avatar"); err != nil {
-		return errors.Wrap(err, utils.RunFuncNameWithFail())
+		return utils.ErrWrapOrWithMessage(true, err)
 	}
 
 	filePath := filepath.Join(consts.DefaultAvatarPath, fmt.Sprintf("%s_%s%s", account, consts.DefaultAvatarSuffix, path.Ext(file.Filename)))
 
 	user := model.User{Account: account}
 	if err = utils.GetDB().Where(&user).Take(&user).Error; err != nil {
-		return errors.Wrap(err, utils.RunFuncNameWithFail())
+		return utils.ErrWrapOrWithMessage(true, err)
 	}
 	if user.AvatarExt != "" {
 		if err = uc.rc.DeleteUser(account); err != nil {
-			return errors.WithMessage(err, utils.RunFuncNameWithFail())
+			return utils.ErrWrapOrWithMessage(false, err)
 		}
 		if err = os.Remove(utils.GetLocalAvatarPath(user.Account, user.AvatarExt)); err != nil {
-			return errors.Wrap(err, utils.RunFuncNameWithFail())
+			return utils.ErrWrapOrWithMessage(true, err)
 		}
 	}
 	if err = utils.GetDB().Where(&user).Updates(&model.User{AvatarExt: path.Ext(file.Filename)}).Error; err != nil {
-		return errors.Wrap(err, utils.RunFuncNameWithFail())
+		return utils.ErrWrapOrWithMessage(true, err)
 	}
 
 	// todo 如果保存文件失败 那数据库里的数据怎么办？
 	// fmt.Println(filePath)
 	if err = c.SaveUploadedFile(file, filePath); err != nil {
-		return errors.Wrap(err, utils.RunFuncNameWithFail())
+		return utils.ErrWrapOrWithMessage(true, err)
 	}
 
 	if err = uc.rc.DeleteUser(account); err != nil {
-		return errors.WithMessage(err, utils.RunFuncNameWithFail())
+		return utils.ErrWrapOrWithMessage(false, err)
 	}
 	// if err = chmodFile(filePath, 0444); err != nil {
 	// 	return errors.WithMessage(err, utils.RunFuncNameWithFail())
@@ -111,20 +111,20 @@ func (uc *userControllerImpl) UploadFile(c *gin.Context) (err error) {
 	var account string
 	var file *multipart.FileHeader
 	if account, err = uc.getAccountByCookie(c); err != nil {
-		return errors.WithMessage(err, utils.RunFuncNameWithFail())
+		return utils.ErrWrapOrWithMessage(false, err)
 	}
 	if file, err = c.FormFile("file"); err != nil {
-		return errors.Wrap(err, utils.RunFuncNameWithFail())
+		return utils.ErrWrapOrWithMessage(true, err)
 	}
 
 	var filePath string
 	if filePath, err = mkdir(account); err != nil {
-		return errors.WithMessage(err, utils.RunFuncNameWithFail())
+		return utils.ErrWrapOrWithMessage(false, err)
 	}
 	filePath = filepath.Join(filePath, file.Filename)
 
 	if err = c.SaveUploadedFile(file, filePath); err != nil {
-		return errors.Wrap(err, utils.RunFuncNameWithFail())
+		return utils.ErrWrapOrWithMessage(true, err)
 	}
 
 	return nil
@@ -136,7 +136,7 @@ func (uc *userControllerImpl) getAccountByCookie(c *gin.Context) (account string
 		account, _ = uc.rc.Get(consts.RedisCookieHashPrefix + cookie)
 	}
 	if account == "" {
-		return "", errors.Wrap(errors.New(consts.CookieTimeOutError), utils.RunFuncNameWithFail())
+		return "", utils.ErrWrapOrWithMessage(true, errors.New(consts.CookieTimeOutError))
 	}
 	return account, nil
 }
@@ -151,11 +151,11 @@ func (uc *userControllerImpl) getUserByAccount(account string) (user *model.User
 	user = &model.User{Account: account}
 	if err = uc.db.Where(user).Take(user).Error; err == gorm.ErrRecordNotFound {
 		// return nil, err
-		return nil, errors.Wrap(err, utils.RunFuncNameWithFail())
+		return nil, utils.ErrWrapOrWithMessage(true, err)
 	}
 	if err = uc.rc.SetUser(*user); err != nil {
 		// return nil, err
-		return nil, errors.Wrap(err, utils.RunFuncNameWithFail())
+		return nil, utils.ErrWrapOrWithMessage(false, err)
 	}
 	return user, nil
 }
@@ -165,7 +165,7 @@ func mkdir(userName string) (filePath string, err error) {
 	if err = os.MkdirAll(filePath, os.ModePerm); err != nil {
 		log.Print("目录创建失败", err)
 		// return "", err
-		return "", errors.Wrap(err, utils.RunFuncNameWithFail())
+		return "", utils.ErrWrapOrWithMessage(true, err)
 	}
 	return filePath, nil
 }
@@ -173,13 +173,13 @@ func mkdir(userName string) (filePath string, err error) {
 func chmodFile(filePath string, mod os.FileMode) (err error) {
 	f, err := os.Open(filePath)
 	if err != nil {
-		return errors.Wrap(err, utils.RunFuncNameWithFail())
+		return utils.ErrWrapOrWithMessage(true, err)
 	}
 	if err = f.Chmod(mod); err != nil {
-		return errors.Wrap(err, utils.RunFuncNameWithFail())
+		return utils.ErrWrapOrWithMessage(true, err)
 	}
 	if err = f.Close(); err != nil {
-		return errors.Wrap(err, utils.RunFuncNameWithFail())
+		return utils.ErrWrapOrWithMessage(true, err)
 	}
 	return nil
 }

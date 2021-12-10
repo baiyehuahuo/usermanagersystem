@@ -22,7 +22,7 @@ type loginControllerImpl struct {
 
 func (loginController *loginControllerImpl) CheckAuthCode(c *gin.Context, email string, authCode int) (err error) {
 	if !utils.GetEACC().CheckAuthCodeByEmail(email, authCode) {
-		return errors.Wrap(errors.New(consts.CheckAuthCodeFail), utils.RunFuncNameWithFail())
+		return utils.ErrWrapOrWithMessage(true, errors.New(consts.CheckAuthCodeFail))
 	}
 	return nil
 }
@@ -30,7 +30,7 @@ func (loginController *loginControllerImpl) CheckAuthCode(c *gin.Context, email 
 func (loginController *loginControllerImpl) CheckEmailAvailable(c *gin.Context, email string) (err error) {
 	user := model.User{Email: email}
 	if err := utils.GetDB().Where(&user).Take(&user).Error; err != gorm.ErrRecordNotFound {
-		return errors.Wrap(errors.New(consts.EmailUnavailable), utils.RunFuncNameWithFail())
+		return utils.ErrWrapOrWithMessage(true, errors.New(consts.EmailUnavailable))
 	}
 	return nil
 }
@@ -41,7 +41,7 @@ func (loginController *loginControllerImpl) UserLogin(c *gin.Context, account st
 		Password: fmt.Sprintf("%x", md5.Sum([]byte(password))),
 	}
 	if err = utils.GetDB().Where(&user).Take(&user).Error; err == gorm.ErrRecordNotFound {
-		return errors.Wrap(err, utils.RunFuncNameWithFail())
+		return utils.ErrWrapOrWithMessage(true, err)
 	}
 
 	c.SetSameSite(http.SameSiteLaxMode)
@@ -50,7 +50,7 @@ func (loginController *loginControllerImpl) UserLogin(c *gin.Context, account st
 		consts.CookieValidationDomain, false, true)
 	if err = loginController.rc.Set(consts.RedisCookieHashPrefix+cookie, user.Account,
 		consts.CookieContinueTime); err != nil {
-		return errors.WithMessage(err, utils.RunFuncNameWithFail())
+		return utils.ErrWrapOrWithMessage(false, err)
 	}
 
 	if err = loginController.rc.SetUser(user); err != nil { // 保存到 redis 缓存中 失败也不必停止
@@ -69,14 +69,14 @@ func (loginController *loginControllerImpl) UserRegister(c *gin.Context, account
 	}
 	// todo 邮箱验证码
 	if err = utils.GetDB().Create(&user).Error; err != nil {
-		return errors.Wrap(err, utils.RunFuncNameWithFail())
+		return utils.ErrWrapOrWithMessage(true, err)
 	}
 	return nil
 }
 
 func (loginController *loginControllerImpl) SendAuthCode(c *gin.Context, email string) (err error) {
 	if err = utils.GetEACC().SendAuthCodeByEmail(email); err != nil {
-		return errors.WithMessage(err, utils.RunFuncNameWithFail())
+		return utils.ErrWrapOrWithMessage(false, err)
 	}
 	return nil
 }
