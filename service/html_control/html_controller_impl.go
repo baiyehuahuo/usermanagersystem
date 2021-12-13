@@ -1,4 +1,4 @@
-package htmlcontrol
+package html_control
 
 import (
 	"log"

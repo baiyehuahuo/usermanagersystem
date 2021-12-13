@@ -7,16 +7,16 @@ import (
 	"strconv"
 	"usermanagersystem/consts"
 	"usermanagersystem/model"
-	"usermanagersystem/service/logincontrol"
-	"usermanagersystem/service/usercontrol"
+	"usermanagersystem/service/login_control"
+	"usermanagersystem/service/user_control"
 	"usermanagersystem/utils"
 
 	"github.com/gin-gonic/gin"
 )
 
 type handleManager struct {
-	lm logincontrol.LoginController
-	um usercontrol.UserController
+	lm login_control.LoginController
+	um user_control.UserController
 }
 
 // get post 参数在本层校验

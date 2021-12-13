@@ -4,9 +4,9 @@ import (
 	"log"
 	"os"
 	"usermanagersystem/consts"
-	"usermanagersystem/service/htmlcontrol"
-	"usermanagersystem/service/logincontrol"
-	"usermanagersystem/service/usercontrol"
+	"usermanagersystem/service/html_control"
+	"usermanagersystem/service/login_control"
+	"usermanagersystem/service/user_control"
 	"usermanagersystem/utils"
 
 	"github.com/gin-gonic/gin"
@@ -39,7 +39,7 @@ func init() {
 
 func main() {
 	router := gin.Default()
-	htmlManager := htmlcontrol.New()
+	htmlManager := html_control.New()
 	router.LoadHTMLGlob("templates/*")                                // html 文件
 	router.Static(consts.DefaultStaticPath, consts.DefaultStaticPath) // 静态文件映射
 	router.Static(consts.DefaultAvatarPath, consts.DefaultAvatarPath)
@@ -48,8 +48,8 @@ func main() {
 	router.GET("/UserManage", htmlManager.ToUserManage)
 
 	handle := handleManager{
-		lm: logincontrol.New(),
-		um: usercontrol.New(),
+		lm: login_control.New(),
+		um: user_control.New(),
 	}
 	router.GET("/CheckAuthCode", handle.CheckAuthCode)
 	router.GET("/CheckEmailAvailable", handle.CheckEmailAvailable)

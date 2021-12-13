@@ -1,4 +1,4 @@
-package logincontrol
+package login_control
 
 import (
 	"crypto/md5"

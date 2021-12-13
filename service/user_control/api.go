@@ -1,4 +1,4 @@
-package usercontrol
+package user_control
 
 import (
 	"usermanagersystem/model"

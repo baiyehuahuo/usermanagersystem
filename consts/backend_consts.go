@@ -9,10 +9,10 @@ const (
 	AuthCodeContinueTime   = 30 * time.Second
 	AuthCodeCacheFlushTime = 300 * time.Second
 
-	DefaultFileRootPath = "uploadfiles"
-	DefaultUserFilePath = DefaultFileRootPath + "/userfiles"
+	DefaultFileRootPath = "upload_files"
+	DefaultUserFilePath = DefaultFileRootPath + "/user_files"
 	DefaultAvatarPath   = "avatars"
-	DefaultMoviewPath   = DefaultFileRootPath + "/movies"
+	DefaultMoviePath    = DefaultFileRootPath + "/movies"
 	DefaultStaticPath   = "static"
 	DefaultAvatarSuffix = "avatar"
 
