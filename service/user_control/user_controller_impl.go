@@ -28,7 +28,7 @@ type userControllerImpl struct {
 func (uc *userControllerImpl) GetUserMessageByCookie(c *gin.Context) (user *model.User, err error) {
 	var account string
 
-	if account, err = uc.getAccountByCookie(c); err != nil {
+	if account, err = uc.GetAccountByCookie(c); err != nil {
 		// return nil, err
 		return nil, utils.ErrWrapOrWithMessage(false, err)
 	}
@@ -40,12 +40,7 @@ func (uc *userControllerImpl) GetUserMessageByCookie(c *gin.Context) (user *mode
 }
 
 // ModifyPassword 修改密码
-func (uc *userControllerImpl) ModifyPassword(c *gin.Context, oldPassword string, newPassword string) (err error) {
-	var account string
-
-	if account, err = uc.getAccountByCookie(c); err != nil {
-		return utils.ErrWrapOrWithMessage(false, err)
-	}
+func (uc *userControllerImpl) ModifyPassword(c *gin.Context, account, oldPassword string, newPassword string) (err error) {
 	oldPasswordMD5 := fmt.Sprintf("%x", md5.Sum([]byte(oldPassword)))
 	newPasswordMD5 := fmt.Sprintf("%x", md5.Sum([]byte(newPassword)))
 	user := model.User{
@@ -64,7 +59,7 @@ func (uc *userControllerImpl) UploadAvatar(c *gin.Context) (err error) {
 	var account string
 	var file *multipart.FileHeader
 
-	if account, err = uc.getAccountByCookie(c); err != nil {
+	if account, err = uc.GetAccountByCookie(c); err != nil {
 		return utils.ErrWrapOrWithMessage(false, err)
 	}
 
@@ -110,7 +105,7 @@ func (uc *userControllerImpl) UploadAvatar(c *gin.Context) (err error) {
 func (uc *userControllerImpl) UploadFile(c *gin.Context) (err error) {
 	var account string
 	var file *multipart.FileHeader
-	if account, err = uc.getAccountByCookie(c); err != nil {
+	if account, err = uc.GetAccountByCookie(c); err != nil {
 		return utils.ErrWrapOrWithMessage(false, err)
 	}
 	if file, err = c.FormFile("file"); err != nil {
@@ -131,7 +126,7 @@ func (uc *userControllerImpl) UploadFile(c *gin.Context) (err error) {
 }
 
 // getAccount 通过cookie获取账户
-func (uc *userControllerImpl) getAccountByCookie(c *gin.Context) (account string, err error) {
+func (uc *userControllerImpl) GetAccountByCookie(c *gin.Context) (account string, err error) {
 	if cookie, err := c.Cookie(consts.CookieNameOfUser); err == nil {
 		account, _ = uc.rc.Get(consts.RedisCookieHashPrefix + cookie)
 	}

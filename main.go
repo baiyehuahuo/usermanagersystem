@@ -33,8 +33,12 @@ func init() {
 	if err = UploadFilePathCreate(); err != nil {
 		log.Fatal(err)
 	}
-	utils.EmailAuthCodeControllerCreate()
 
+	if err = SetLog(); err != nil {
+		log.Fatal(err)
+	}
+
+	utils.EmailAuthCodeControllerCreate()
 }
 
 func main() {

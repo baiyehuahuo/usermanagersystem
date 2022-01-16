@@ -28,4 +28,6 @@ const (
 	RedisUserMessageContinueTime = 30
 
 	UpdatePasswordFail = "update password fail"
+
+	LogFilePath = "userslog/log.txt"
 )

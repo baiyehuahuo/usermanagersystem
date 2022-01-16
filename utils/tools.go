@@ -41,7 +41,7 @@ func ErrWrapOrWithMessage(wrap bool, err error) error {
 	pc := make([]uintptr, 1)
 	runtime.Callers(2, pc)
 	f := runtime.FuncForPC(pc[0])
-	message := f.Name() + " fail\n"
+	message := f.Name() + " fail"
 	if wrap {
 		return errors.Wrap(err, message)
 	}

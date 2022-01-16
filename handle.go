@@ -26,15 +26,18 @@ func (handle *handleManager) CheckAuthCode(c *gin.Context) {
 	email := c.Query("email")
 	authCode, err := strconv.Atoi(c.Query("auth_code"))
 	if err != nil {
+		log.Printf("CheckAuthCode fail: %s get auth code fail.", email)
 		c.JSON(http.StatusBadRequest, consts.InputParamsError)
 		return
 	}
 
 	if err := handle.lm.CheckAuthCode(c, email, authCode); err != nil {
-		log.Printf("CheckAuthCode Fail: %v", err)
+		log.Printf("CheckAuthCode fail: %s check auth code fail.", email)
 		c.JSON(http.StatusInternalServerError, consts.CheckAuthCodeFail)
 		return
 	}
+
+	log.Printf("CheckAuthCode success: %s check auth code success.", email)
 	c.JSON(http.StatusOK, consts.CheckAuthCodeSuccess)
 }
 
@@ -42,14 +45,16 @@ func (handle *handleManager) CheckAuthCode(c *gin.Context) {
 func (handle *handleManager) CheckEmailAvailable(c *gin.Context) {
 	email := c.Query("email")
 	if email == "" {
+		log.Printf("CheckEmailAvailable fail: email is empty.")
 		c.JSON(http.StatusInternalServerError, consts.InputParamsError)
 		return
 	}
 	if err := handle.lm.CheckEmailAvailable(c, email); err != nil {
-		log.Printf("CheckEmailAvailable Fail: %v", err)
+		log.Printf("CheckEmailAvailable fail: %s \terr: %v.", email, err)
 		c.JSON(http.StatusInternalServerError, consts.EmailUnavailable)
 		return
 	}
+	log.Printf("CheckEmailAvailable success: %s.", email)
 	c.JSON(http.StatusOK, consts.EmailAvailable)
 }
 
@@ -57,7 +62,7 @@ func (handle *handleManager) CheckEmailAvailable(c *gin.Context) {
 func (handle *handleManager) GetUserMessageByCookie(c *gin.Context) {
 	user, err := handle.um.GetUserMessageByCookie(c)
 	if err != nil {
-		log.Printf("GetUserMessage Fail: %v", err)
+		log.Printf("GetUserMessage fail: %s \terr: %v.", user, err)
 		c.JSON(http.StatusInternalServerError, consts.GetUserMessageFail)
 		return
 	}
@@ -67,6 +72,7 @@ func (handle *handleManager) GetUserMessageByCookie(c *gin.Context) {
 		NickName:   user.NickName,
 		AvatarPath: utils.GetNetAvatarPath(user.Account, user.AvatarExt),
 	}
+	log.Printf("GetUserMessage success: %s.", user)
 	c.JSON(http.StatusOK, result)
 }
 
@@ -75,15 +81,21 @@ func (handle *handleManager) ModifyPassword(c *gin.Context) {
 	oldPassword := c.PostForm("oldPassword")
 	newPassword := c.PostForm("newPassword")
 	if oldPassword == "" || newPassword == "" {
+		log.Printf("ModifyPassword fail: password is empty.")
 		c.JSON(http.StatusInternalServerError, consts.InputParamsError)
 		return
 	}
-
-	if err := handle.um.ModifyPassword(c, oldPassword, newPassword); err != nil {
-		log.Printf("ModifyPassword Fail: %v", err)
+	user, err := handle.um.GetAccountByCookie(c)
+	if err != nil {
+		log.Printf("ModifyPassword fail: %s \terr: %v", user, err)
+		c.JSON(http.StatusInternalServerError, consts.ModifyPasswordFail)
+	}
+	if err = handle.um.ModifyPassword(c, user, oldPassword, newPassword); err != nil {
+		log.Printf("ModifyPassword fail: %s \terr: %v.", user, err)
 		c.JSON(http.StatusInternalServerError, consts.ModifyPasswordFail)
 		return
 	}
+	log.Printf("ModifyPassword success: %s", user)
 	c.JSON(http.StatusOK, consts.ModifyPasswordSuccess)
 }
 
@@ -92,15 +104,17 @@ func (handle *handleManager) UserLogin(c *gin.Context) {
 	account := c.Query("account")
 	password := c.Query("password")
 	if account == "" || password == "" {
+		log.Printf("UserLogin fail: account or password is empty.")
 		c.JSON(http.StatusInternalServerError, consts.InputParamsError)
 		return
 	}
 
 	if err := handle.lm.UserLogin(c, account, password); err != nil {
-		log.Printf("Login Fail: %v", err)
+		log.Printf("UserLogin fail: %s \terr: %v.", account, err)
 		c.JSON(http.StatusInternalServerError, consts.LoginFail)
 		return
 	}
+	log.Printf("UserLogin success: %s", account)
 	c.JSON(http.StatusOK, consts.LoginSuccess)
 }
 
@@ -111,35 +125,51 @@ func (handle *handleManager) UserRegister(c *gin.Context) {
 	email := c.Query("email")
 	nickName := c.Query("nick_name")
 	if account == "" || password == "" || email == "" || nickName == "" {
+		log.Printf("UserRegister fail: params has empty.")
 		c.JSON(http.StatusInternalServerError, consts.InputParamsError)
 		return
 	}
 
 	if err := handle.lm.UserRegister(c, account, password, email, nickName); err != nil {
-		log.Printf("Regedit Fail: %v", err)
+		log.Printf("UserRegister fail: %s \terr: %v.", account, err)
 		c.JSON(http.StatusInternalServerError, consts.RegeditFail)
 		return
 	}
+	log.Printf("UserRegister success: %s", account)
 	c.JSON(http.StatusOK, consts.RegeditSuccess)
 }
 
 // UploadFile 用户文件上传处理接口
 func (handle *handleManager) UploadFile(c *gin.Context) {
-	if err := handle.um.UploadFile(c); err != nil {
-		log.Printf("UploadFile Fail: %v", err)
+	user, err := handle.um.GetAccountByCookie(c)
+	if err != nil {
+		log.Printf("UploadFile fail: user is not found.")
 		c.JSON(http.StatusInternalServerError, consts.UploadFail)
 		return
 	}
+	if err := handle.um.UploadFile(c); err != nil {
+		log.Printf("UploadFile fail: %s \terr: %v.", user, err)
+		c.JSON(http.StatusInternalServerError, consts.UploadFail)
+		return
+	}
+	log.Printf("UploadFile success: %s.", user)
 	c.JSON(http.StatusOK, consts.UploadSuccess)
 }
 
 // UploadAvatar 用户头像上传处理接口
 func (handle *handleManager) UploadAvatar(c *gin.Context) {
-	if err := handle.um.UploadAvatar(c); err != nil {
-		log.Printf("UploadAvatar Fail: %v", err)
+	user, err := handle.um.GetAccountByCookie(c)
+	if err != nil {
+		log.Printf("UploadAvatar fail: user is not found.")
 		c.JSON(http.StatusInternalServerError, consts.UploadFail)
 		return
 	}
+	if err := handle.um.UploadAvatar(c); err != nil {
+		log.Printf("UploadAvatar fail: %s \terr: %v.", user, err)
+		c.JSON(http.StatusInternalServerError, consts.UploadFail)
+		return
+	}
+	log.Printf("UploadAvatar success: %s.", user)
 	c.JSON(http.StatusOK, consts.UploadSuccess)
 }
 
@@ -147,15 +177,17 @@ func (handle *handleManager) UploadAvatar(c *gin.Context) {
 func (handle *handleManager) SendAuthCode(c *gin.Context) {
 	email := c.Query("email")
 	if email == "" {
+		log.Printf("SendAuthCode fail: email is empty.")
 		c.JSON(http.StatusInternalServerError, consts.InputParamsError)
 		return
 	}
 
 	if err := handle.lm.SendAuthCode(c, email); err != nil {
-		log.Printf("SendAuthCode Fail: %v", err)
+		log.Printf("SendAuthCode fail: %s \terr: %v", email, err)
 		c.JSON(http.StatusInternalServerError, consts.SendAuthCodeFail)
 		return
 	}
+	log.Printf("SendAuthCode success: %s", email)
 	c.JSON(http.StatusOK, consts.SendAuthCodeSuccess)
 }
 
@@ -172,5 +204,15 @@ func UploadFilePathCreate() (err error) {
 	// 	log.Print("创建目录失败 ", err)
 	// 	return err
 	// }
+	return nil
+}
+
+func SetLog() (err error) {
+	logFile, err := os.OpenFile(consts.LogFilePath, os.O_RDONLY|os.O_CREATE|os.O_APPEND, 0666)
+	if err != nil {
+		return err
+	}
+	log.SetOutput(logFile)
+	log.SetFlags(log.LstdFlags | log.Lshortfile | log.LUTC)
 	return nil
 }
