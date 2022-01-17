@@ -29,5 +29,7 @@ const (
 
 	UpdatePasswordFail = "update password fail"
 
-	LogFilePath = "userslog/log.txt"
+	SystemLogPath   = "systemLogs"
+	LogFilePath     = SystemLogPath + "/log.txt"
+	MySQLBackUpPath = SystemLogPath + "/mysql_backup.sql"
 )

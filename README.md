@@ -25,10 +25,11 @@
 | CheckEmailAvailable | 检测邮箱可用   | GET  |
 | GetUserMessage      | 获取用户信息   | GET  |
 | ModifyPassword      | 修改密码       | POST |
+| RestoreMySQL        | 恢复数据库     | GET  |
 | UploadAvatar        | 上传头像       | POST |
 | UploadFile          | 上传文件       | POST |
 | UserLogin           | 用户登录       | GET  |
-| UserRegedit         | 用户注册       | GET  |
+| UserRegister        | 用户注册       | GET  |
 | SendAuthCode        | 发送邮箱验证码 | GET  |
 
 #### CheckAuthCode
@@ -61,6 +62,10 @@ POST：修改密码
 | oldPassword | string | 旧密码 | √    |
 | newPassword | string | 新密码 | √    |
 
+#### ModifyPassword
+
+GET：恢复最近保存的数据库信息
+
 #### UploadAvatar
 
 POST：上传头像图片（前后端都应该需要进行简单检测）
@@ -86,7 +91,7 @@ GET：用户登录
 | account  | string | 账户 ID | √    |
 | password | string | 密码   | √    |
 
-#### UserRegedit
+#### UserRegister
 
 GET：用户注册
 

@@ -11,6 +11,8 @@ import (
 	"usermanagersystem/service/user_control"
 	"usermanagersystem/utils"
 
+	"github.com/robfig/cron"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -97,6 +99,11 @@ func (handle *handleManager) ModifyPassword(c *gin.Context) {
 	}
 	log.Printf("ModifyPassword success: %s", user)
 	c.JSON(http.StatusOK, consts.ModifyPasswordSuccess)
+}
+
+// RestoreMySQL 恢复数据库
+func (handle *handleManager) RestoreMySQL(c *gin.Context) {
+	utils.RestoreMySQL()
 }
 
 // UserLogin 用户登录处理接口
@@ -191,12 +198,17 @@ func (handle *handleManager) SendAuthCode(c *gin.Context) {
 	c.JSON(http.StatusOK, consts.SendAuthCodeSuccess)
 }
 
+// UploadFilePathCreate 创建文件上传路径
 func UploadFilePathCreate() (err error) {
 	if err = os.MkdirAll(consts.DefaultUserFilePath, os.ModePerm); err != nil {
 		log.Print("目录创建失败 ", err)
 		return err
 	}
 	if err = os.MkdirAll(consts.DefaultAvatarPath, os.ModePerm); err != nil {
+		log.Print("目录创建失败 ", err)
+		return err
+	}
+	if err = os.MkdirAll(consts.SystemLogPath, os.ModePerm); err != nil {
 		log.Print("目录创建失败 ", err)
 		return err
 	}
@@ -207,6 +219,7 @@ func UploadFilePathCreate() (err error) {
 	return nil
 }
 
+// SetLog 设置日志路径
 func SetLog() (err error) {
 	logFile, err := os.OpenFile(consts.LogFilePath, os.O_RDONLY|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
@@ -214,5 +227,19 @@ func SetLog() (err error) {
 	}
 	log.SetOutput(logFile)
 	log.SetFlags(log.LstdFlags | log.Lshortfile | log.LUTC)
+	return nil
+}
+
+// SetTimer 启动定时器
+func SetTimer() (err error) {
+	c := cron.New() // 精确到秒
+
+	utils.BackupMySQL()
+	spec := "0 */5 * * * ?" // every 5 minutes
+	if err := c.AddFunc(spec, utils.BackupMySQL); err != nil {
+		return err
+	}
+
+	c.Start()
 	return nil
 }

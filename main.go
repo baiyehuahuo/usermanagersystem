@@ -14,6 +14,11 @@ import (
 
 func init() {
 	var err error
+
+	if err = SetLog(); err != nil {
+		log.Fatal(err)
+	}
+
 	if err = utils.ConfigRead(); err != nil {
 		log.Fatal(err)
 	}
@@ -34,7 +39,7 @@ func init() {
 		log.Fatal(err)
 	}
 
-	if err = SetLog(); err != nil {
+	if err = SetTimer(); err != nil {
 		log.Fatal(err)
 	}
 
@@ -58,8 +63,9 @@ func main() {
 	router.GET("/CheckAuthCode", handle.CheckAuthCode)
 	router.GET("/CheckEmailAvailable", handle.CheckEmailAvailable)
 	router.GET("/GetUserMessage", handle.GetUserMessageByCookie)
+	router.GET("/RestoreMySQL", handle.RestoreMySQL)
 	router.GET("/UserLogin", handle.UserLogin)
-	router.GET("/UserRegedit", handle.UserRegister)
+	router.GET("/UserRegister", handle.UserRegister)
 	router.GET("/SendAuthCode", handle.SendAuthCode)
 
 	router.POST("/ModifyPassword", handle.ModifyPassword)
