@@ -3,6 +3,9 @@
 1. 前端暂用 https://gitee.com/xminghua/Login.git ，待小组成员补充
 2. 后端用 `go` 开发，`gin` 为服务器， `gorm` 查询， MySQL 为数据库
 3. 运行用 `go run .`
+4. 系统日志文件在主目录下的 `systemlogs` 下，同时数据库备份文件也在该目录下
+5. 配置文件在 `config` 目录下，配置信息在 `config/config.yaml` 中
+6. 启动前需要查看 `config.yaml` 文件，查看是否与自己系统配置一致。（[redis密码设置教程](https://www.runoob.com/redis/redis-security.html)）
 
 ### 目录分级
 
@@ -16,6 +19,7 @@
 | templates   | HTML 界面                           |
 | uploadfiles | 用户上传文件及头像（`gitignore`）    |
 | utils       | 工具包，读取配置文件、连接数据库等 |
+| systemlogs | 日志文件及数据库备份 |
 
 ### 后端接口
 
@@ -115,4 +119,3 @@ TODO：
 1. 需要界面
 2. 修改一些GET为POST
 3. 前后端都需要检测邮箱是否合法
-4. 参数校验改到 `handle.go` 中
