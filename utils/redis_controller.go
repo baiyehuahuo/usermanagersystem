@@ -30,6 +30,15 @@ func RedisNew() RedisController {
 func ConnectToRedis() (err error) {
 	config := Config.RedisConfig
 	redisClient = redis.NewClient(&redis.Options{
+		Addr: fmt.Sprintf("%s:%d", config.Host, config.Port),
+		DB:   config.DbNum,
+	})
+	_, err = redisClient.Ping().Result()
+	if err == nil {
+		return nil
+	}
+
+	redisClient = redis.NewClient(&redis.Options{
 		Addr:     fmt.Sprintf("%s:%d", config.Host, config.Port),
 		Password: config.Password,
 		DB:       config.DbNum,

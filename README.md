@@ -5,7 +5,7 @@
 3. 运行用 `go run .`
 4. 系统日志文件在主目录下的 `systemlogs` 下，同时数据库备份文件也在该目录下
 5. 配置文件在 `config` 目录下，配置信息在 `config/config.yaml` 中
-6. 启动前需要查看 `config.yaml` 文件，查看是否与自己系统配置一致。（[redis密码设置教程](https://www.runoob.com/redis/redis-security.html)）
+6. [redis密码设置教程](https://www.runoob.com/redis/redis-security.html)
 
 ### 目录分级
 
