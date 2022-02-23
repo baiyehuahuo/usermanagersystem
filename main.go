@@ -48,6 +48,7 @@ func init() {
 
 func main() {
 	router := gin.Default()
+	router.Use(Cors())
 	htmlManager := html_control.New()
 	router.LoadHTMLGlob("templates/*")                                // html 文件
 	router.Static(consts.DefaultStaticPath, consts.DefaultStaticPath) // 静态文件映射
