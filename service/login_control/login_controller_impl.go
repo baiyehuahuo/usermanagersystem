@@ -47,7 +47,9 @@ func (loginController *loginControllerImpl) UserLogin(c *gin.Context, account st
 	c.SetSameSite(http.SameSiteLaxMode)
 	cookie := fmt.Sprintf("%x", md5.Sum([]byte(user.Account+time.Now().String()))) // cookie值
 	c.SetCookie(consts.CookieNameOfUser, cookie, consts.CookieContinueTime, consts.CookieValidationRange,
-		consts.CookieValidationDomain, false, true)
+		consts.CookieValidationDomainIP, false, true)
+	c.SetCookie(consts.CookieNameOfUser, cookie, consts.CookieContinueTime, consts.CookieValidationRange,
+		consts.CookieValidationDomainLocal, false, true)
 	if err = loginController.rc.Set(consts.RedisCookieHashPrefix+cookie, user.Account,
 		consts.CookieContinueTime); err != nil {
 		return utils.ErrWrapOrWithMessage(false, err)
