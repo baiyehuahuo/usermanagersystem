@@ -177,6 +177,7 @@ func (handle *handleManager) UploadAvatar(c *gin.Context) {
 		return
 	}
 	log.Printf("UploadAvatar success: %s.", user)
+
 	c.JSON(http.StatusOK, consts.UploadSuccess)
 }
 
@@ -252,8 +253,9 @@ func Cors() gin.HandlerFunc {
 		w.Header().Set("Access-Control-Allow-Credentials", "true")
 		w.Header().Set("Access-Control-Allow-Origin", r.Header.Get("Origin"))
 		w.Header().Set("Access-Control-Allow-Methods", "OPTIONS, POST, GET")
-		w.Header().Add("Access-Control-Allow-Headers", "Content-Type")
+		// w.Header().Add("Access-Control-Allow-Headers", "Content-Type")
 		w.Header().Add("Access-Control-Allow-Headers", "Access-Token")
+		// w.Header().Set("content-type", "application/javascript")
 		c.Next()
 	}
 }

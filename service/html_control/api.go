@@ -8,7 +8,6 @@ import (
 
 type HtmlController interface {
 	ToLogin(c *gin.Context)
-	ToUserManage(c *gin.Context)
 }
 
 func New() HtmlController {

@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"mime"
 	"os"
 	"usermanagersystem/consts"
 	"usermanagersystem/service/html_control"
@@ -14,6 +15,10 @@ import (
 
 func init() {
 	var err error
+
+	if err = UploadFilePathCreate(); err != nil {
+		log.Fatal(err)
+	}
 
 	if err = SetLog(); err != nil {
 		log.Fatal(err)
@@ -35,10 +40,6 @@ func init() {
 		log.Fatal(err)
 	}
 
-	if err = UploadFilePathCreate(); err != nil {
-		log.Fatal(err)
-	}
-
 	if err = SetTimer(); err != nil {
 		log.Fatal(err)
 	}
@@ -50,12 +51,11 @@ func main() {
 	router := gin.Default()
 	router.Use(Cors())
 	htmlManager := html_control.New()
-	router.LoadHTMLGlob("templates/*")                                // html 文件
-	router.Static(consts.DefaultStaticPath, consts.DefaultStaticPath) // 静态文件映射
+	router.LoadHTMLGlob("templates/*")                              // html 文件
+	router.Static(consts.DefaultStaticPath, consts.DefaultStaticPath) 		// 静态文件映射
 	router.Static(consts.DefaultAvatarPath, consts.DefaultAvatarPath)
-	// router.Static("/movie", "./uploadfiles/movies")
+	mime.AddExtensionType(".js", "application/javascript")
 	router.GET("/", htmlManager.ToLogin)
-	router.GET("/UserManage", htmlManager.ToUserManage)
 
 	handle := handleManager{
 		lm: login_control.New(),
