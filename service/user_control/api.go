@@ -8,6 +8,7 @@ import (
 )
 
 type UserController interface {
+	SetPassword(c *gin.Context, email string, password string) error
 	getUserByAccount(account string) (user *model.User, err error)
 	GetAccountByCookie(c *gin.Context) (account string, err error)
 	GetUserMessageByCookie(c *gin.Context) (user *model.User, err error)

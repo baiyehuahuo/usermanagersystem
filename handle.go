@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"regexp"
 	"strconv"
 	"usermanagersystem/consts"
 	"usermanagersystem/model"
@@ -27,7 +28,7 @@ type handleManager struct {
 func (handle *handleManager) CheckAuthCode(c *gin.Context) {
 	email := c.Query("email")
 	authCode, err := strconv.Atoi(c.Query("auth_code"))
-	if err != nil {
+	if err != nil || !verifyEmailFormat(email) {
 		log.Printf("CheckAuthCode fail: %s get auth code fail.", email)
 		c.JSON(http.StatusBadRequest, consts.InputParamsError)
 		return
@@ -46,8 +47,8 @@ func (handle *handleManager) CheckAuthCode(c *gin.Context) {
 // CheckEmailAvailable 验证码检测处理接口
 func (handle *handleManager) CheckEmailAvailable(c *gin.Context) {
 	email := c.Query("email")
-	if email == "" {
-		log.Printf("CheckEmailAvailable fail: email is empty.")
+	if !verifyEmailFormat(email) {
+		log.Printf("CheckEmailAvailable fail: email is wrong.")
 		c.JSON(http.StatusInternalServerError, consts.InputParamsError)
 		return
 	}
@@ -58,6 +59,30 @@ func (handle *handleManager) CheckEmailAvailable(c *gin.Context) {
 	}
 	log.Printf("CheckEmailAvailable success: %s.", email)
 	c.JSON(http.StatusOK, consts.EmailAvailable)
+}
+
+// ForgetPassword 验证码修改密码
+func (handle *handleManager) ForgetPassword(c *gin.Context) {
+	email := c.PostForm("email")
+	authCode, err := strconv.Atoi(c.PostForm("auth_code"))
+	newPassword := c.PostForm("new_password")
+	if email == "" || err != nil || newPassword == "" {
+		log.Printf("ForgetPassword fail: input error.")
+		c.JSON(http.StatusInternalServerError, consts.InputParamsError)
+		return
+	}
+	if err = handle.lm.CheckAuthCode(c, email, authCode); err != nil {
+		log.Printf("ForgetPassword fail: check auth code fail: %s \terr: %v.", email, err)
+		c.JSON(http.StatusInternalServerError, consts.CheckAuthCodeFail)
+		return
+	}
+	if err = handle.um.SetPassword(c, email, newPassword); err != nil {
+		log.Printf("ForgetPassword fail: set password fail: %s \t %s\terr: %v.", email, newPassword, err)
+		c.JSON(http.StatusInternalServerError, consts.ForgetPasswordFail)
+		return
+	}
+	log.Printf("ForgetPassword success: %s.", email)
+	c.JSON(http.StatusOK, consts.ForgetPasswordSuccess)
 }
 
 // GetUserMessageByCookie 通过Cookie获取用户信息处理接口
@@ -131,13 +156,14 @@ func (handle *handleManager) UserRegister(c *gin.Context) {
 	password := c.Query("password")
 	email := c.Query("email")
 	nickName := c.Query("nick_name")
-	if account == "" || password == "" || email == "" || nickName == "" {
-		log.Printf("UserRegister fail: params has empty.")
+	authCode, err := strconv.Atoi(c.Query("auth_code"))
+	if account == "" || password == "" || !verifyEmailFormat(email) || err != nil || nickName == "" {
+		log.Printf("UserRegister fail: params has wrong.")
 		c.JSON(http.StatusInternalServerError, consts.InputParamsError)
 		return
 	}
 
-	if err := handle.lm.UserRegister(c, account, password, email, nickName); err != nil {
+	if err := handle.lm.UserRegister(c, account, password, email, authCode, nickName); err != nil {
 		log.Printf("UserRegister fail: %s \terr: %v.", account, err)
 		c.JSON(http.StatusInternalServerError, consts.RegeditFail)
 		return
@@ -184,8 +210,8 @@ func (handle *handleManager) UploadAvatar(c *gin.Context) {
 // SendAuthCode 发送验证码处理接口
 func (handle *handleManager) SendAuthCode(c *gin.Context) {
 	email := c.Query("email")
-	if email == "" {
-		log.Printf("SendAuthCode fail: email is empty.")
+	if !verifyEmailFormat(email) {
+		log.Printf("SendAuthCode fail: email is wrong.")
 		c.JSON(http.StatusInternalServerError, consts.InputParamsError)
 		return
 	}
@@ -258,4 +284,11 @@ func Cors() gin.HandlerFunc {
 		// w.Header().Set("content-type", "application/javascript")
 		c.Next()
 	}
+}
+
+// verifyEmailFormat 验证邮箱格式
+func verifyEmailFormat(email string) bool {
+	pattern := `\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*` // 匹配电子邮箱
+	reg := regexp.MustCompile(pattern)
+	return reg.MatchString(email)
 }

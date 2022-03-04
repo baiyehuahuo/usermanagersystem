@@ -26,5 +26,8 @@ const (
 	EmailAvailable   = "Email Available"
 	EmailUnavailable = "Email Unavailable"
 
+	ForgetPasswordSuccess = "Forget Success"
+	ForgetPasswordFail    = "Forget Fail"
+
 	InputParamsError = "Input Params Error"
 )

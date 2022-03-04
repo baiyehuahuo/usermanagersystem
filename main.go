@@ -51,8 +51,8 @@ func main() {
 	router := gin.Default()
 	router.Use(Cors())
 	htmlManager := html_control.New()
-	router.LoadHTMLGlob("templates/*")                              // html 文件
-	router.Static(consts.DefaultStaticPath, consts.DefaultStaticPath) 		// 静态文件映射
+	router.LoadHTMLGlob("templates/*")                                // html 文件
+	router.Static(consts.DefaultStaticPath, consts.DefaultStaticPath) // 静态文件映射
 	router.Static(consts.DefaultAvatarPath, consts.DefaultAvatarPath)
 	mime.AddExtensionType(".js", "application/javascript")
 	router.GET("/", htmlManager.ToLogin)
@@ -70,6 +70,7 @@ func main() {
 	router.GET("/SendAuthCode", handle.SendAuthCode)
 
 	router.POST("/ModifyPassword", handle.ModifyPassword)
+	router.POST("/ForgetPassword", handle.ForgetPassword)
 	router.POST("/UploadAvatar", handle.UploadAvatar)
 	router.POST("/UploadFile", handle.UploadFile)
 	if err := os.MkdirAll(consts.DefaultAvatarPath, os.ModePerm); err != nil {

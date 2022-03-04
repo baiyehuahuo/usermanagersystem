@@ -24,6 +24,18 @@ type userControllerImpl struct {
 	rc utils.RedisController
 }
 
+func (uc *userControllerImpl) SetPassword(c *gin.Context, email string, password string) error {
+	newPasswordMD5 := fmt.Sprintf("%x", md5.Sum([]byte(password)))
+	user := model.User{
+		Email: email,
+	}
+	if rows := uc.db.Where(&user).Updates(&model.User{Password: newPasswordMD5}).RowsAffected; rows == 0 {
+		return utils.ErrWrapOrWithMessage(true, errors.New(consts.UpdatePasswordFail))
+	}
+
+	return nil
+}
+
 // GetUserMessageByCookie 通过Cookie获取用户信息
 func (uc *userControllerImpl) GetUserMessageByCookie(c *gin.Context) (user *model.User, err error) {
 	var account string

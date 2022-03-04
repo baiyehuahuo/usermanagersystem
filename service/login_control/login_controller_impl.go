@@ -62,14 +62,16 @@ func (loginController *loginControllerImpl) UserLogin(c *gin.Context, account st
 	return nil
 }
 
-func (loginController *loginControllerImpl) UserRegister(c *gin.Context, account string, password string, email string, nickName string) (err error) {
+func (loginController *loginControllerImpl) UserRegister(c *gin.Context, account string, password string, email string, authCode int, nickName string) (err error) {
 	user := model.User{
-		Account:  c.Query("account"),
-		Password: fmt.Sprintf("%x", md5.Sum([]byte(c.Query("password")))),
-		Email:    c.Query("email"), // todo 检测是否已被注册
-		NickName: c.Query("nick_name"),
+		Account:  account,
+		Password: fmt.Sprintf("%x", md5.Sum([]byte(password))),
+		Email:    email,
+		NickName: nickName,
 	}
-	// todo 邮箱验证码
+	if err = loginController.CheckAuthCode(c, email, authCode); err != nil {
+		return utils.ErrWrapOrWithMessage(false, err)
+	}
 	if err = utils.GetDB().Create(&user).Error; err != nil {
 		return utils.ErrWrapOrWithMessage(true, err)
 	}

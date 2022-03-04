@@ -36,14 +36,14 @@ func (cc *cacheContollerImpl) DeleteAuthCode(email string) {
 	cc.ac.Delete(email)
 }
 
-func (cc *cacheContollerImpl) GetAuthCode(email string) (authCode int, exist bool) {
-	authCodePointer, ok := cc.ac.Get(email)
+func (cc *cacheContollerImpl) GetAuthCode(key string) (authCode int, exist bool) {
+	authCodePointer, ok := cc.ac.Get(key)
 	if !ok {
 		return 0, false
 	}
 	return authCodePointer.(int), true
 }
 
-func (cc *cacheContollerImpl) SetAuthCode(email string, authCode int) {
-	cc.ac.Set(email, authCode, cache.DefaultExpiration)
+func (cc *cacheContollerImpl) SetAuthCode(key string, authCode int) {
+	cc.ac.Set(key, authCode, cache.DefaultExpiration)
 }

@@ -23,18 +23,19 @@
 
 ### 后端接口
 
-| 接口名              | 说明           | 方法 |
-| ------------------- | -------------- | ---- |
-| CheckAuthCode       | 检测验证码     | GET  |
-| CheckEmailAvailable | 检测邮箱可用   | GET  |
-| GetUserMessage      | 获取用户信息   | GET  |
-| ModifyPassword      | 修改密码       | POST |
-| RestoreMySQL        | 恢复数据库     | GET  |
-| UploadAvatar        | 上传头像       | POST |
-| UploadFile          | 上传文件       | POST |
-| UserLogin           | 用户登录       | GET  |
-| UserRegister        | 用户注册       | GET  |
-| SendAuthCode        | 发送邮箱验证码 | GET  |
+| 接口名              | 说明                 | 方法 |
+| ------------------- | -------------------- | ---- |
+| CheckAuthCode       | 检测验证码           | GET  |
+| CheckEmailAvailable | 检测邮箱可用         | GET  |
+| ForgetPassword      | 通过邮箱验证修改密码 | POST |
+| GetUserMessage      | 获取用户信息         | GET  |
+| ModifyPassword      | 修改密码             | POST |
+| RestoreMySQL        | 恢复数据库           | GET  |
+| UploadAvatar        | 上传头像             | POST |
+| UploadFile          | 上传文件             | POST |
+| UserLogin           | 用户登录             | GET  |
+| UserRegister        | 用户注册             | GET  |
+| SendAuthCode        | 发送邮箱验证码       | GET  |
 
 #### CheckAuthCode
 
@@ -52,6 +53,16 @@ GET：检测邮箱可用
 | 字段名 | 类型   | 说明 | 必选 |
 | ------ | ------ | ---- | ---- |
 | email  | string | 邮箱 | √    |
+
+#### ForgetPassword
+
+POST：通过邮箱验证修改密码
+
+| 字段名       | 类型   | 说明       | 必选 |
+| ------------ | ------ | ---------- | ---- |
+| email        | string | 邮箱       | √    |
+| auth_code    | int    | 对应验证码 | √    |
+| new_password | string | 新密码     | √    |
 
 #### GetUserMessage
 
@@ -104,6 +115,7 @@ GET：用户注册
 | account  | string | 账户 ID | √    |
 | password | string | 密码   | √    |
 | email    | string | 邮箱   | √    |
+| auth_code | int | 邮箱验证码 | √ |
 | nick_name | string | 昵称   | √    |
 
 #### SendAuthCode
@@ -116,6 +128,4 @@ GET：发送邮箱验证码
 
 TODO：
 
-1. 需要界面
-2. 修改一些GET为POST
 3. 前后端都需要检测邮箱是否合法
