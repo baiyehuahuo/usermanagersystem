@@ -54,6 +54,7 @@ func main() {
 	router.LoadHTMLGlob("templates/*")                                // html 文件
 	router.Static(consts.DefaultStaticPath, consts.DefaultStaticPath) // 静态文件映射
 	router.Static(consts.DefaultAvatarPath, consts.DefaultAvatarPath)
+	router.Static(consts.DefaultFileRootPath, consts.DefaultFileRootPath)
 	mime.AddExtensionType(".js", "application/javascript")
 	router.GET("/", htmlManager.ToLogin)
 
@@ -63,6 +64,7 @@ func main() {
 	}
 	router.GET("/CheckAuthCode", handle.CheckAuthCode)
 	router.GET("/CheckEmailAvailable", handle.CheckEmailAvailable)
+	router.GET("/GetUserFilesPath", handle.GetUserFilesPath)
 	router.GET("/GetUserMessage", handle.GetUserMessageByCookie)
 	router.GET("/RestoreMySQL", handle.RestoreMySQL)
 	router.GET("/UserLogin", handle.UserLogin)

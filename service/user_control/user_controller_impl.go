@@ -3,12 +3,12 @@ package user_control
 import (
 	"crypto/md5"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"mime/multipart"
 	"os"
 	"path"
 	"path/filepath"
-	"time"
 	"usermanagersystem/consts"
 	"usermanagersystem/model"
 	"usermanagersystem/utils"
@@ -24,16 +24,20 @@ type userControllerImpl struct {
 	rc utils.RedisController
 }
 
-func (uc *userControllerImpl) SetPassword(c *gin.Context, email string, password string) error {
-	newPasswordMD5 := fmt.Sprintf("%x", md5.Sum([]byte(password)))
-	user := model.User{
-		Email: email,
+func (uc *userControllerImpl) GetUserFilesPath(c *gin.Context, account string) (result []string, err error) {
+	var filesDirPath string
+	if filesDirPath, err = getUploadFileDirPath(account); err != nil {
+		return nil, utils.ErrWrapOrWithMessage(false, err)
 	}
-	if rows := uc.db.Where(&user).Updates(&model.User{Password: newPasswordMD5}).RowsAffected; rows == 0 {
-		return utils.ErrWrapOrWithMessage(true, errors.New(consts.UpdatePasswordFail))
+	var fileListInfo []os.FileInfo
+	if fileListInfo, err = ioutil.ReadDir(filesDirPath); err != nil {
+		return nil, utils.ErrWrapOrWithMessage(true, err)
 	}
-
-	return nil
+	result = make([]string, 0, len(fileListInfo))
+	for i := range fileListInfo {
+		result = append(result, utils.GetNetUploadFilePath(account, fileListInfo[i].Name()))
+	}
+	return result, nil
 }
 
 // GetUserMessageByCookie 通过Cookie获取用户信息
@@ -58,6 +62,19 @@ func (uc *userControllerImpl) ModifyPassword(c *gin.Context, account, oldPasswor
 	user := model.User{
 		Account:  account,
 		Password: oldPasswordMD5,
+	}
+	if rows := uc.db.Where(&user).Updates(&model.User{Password: newPasswordMD5}).RowsAffected; rows == 0 {
+		return utils.ErrWrapOrWithMessage(true, errors.New(consts.UpdatePasswordFail))
+	}
+
+	return nil
+}
+
+// SetPassword 按照邮箱设置密码
+func (uc *userControllerImpl) SetPassword(c *gin.Context, email string, password string) error {
+	newPasswordMD5 := fmt.Sprintf("%x", md5.Sum([]byte(password)))
+	user := model.User{
+		Email: email,
 	}
 	if rows := uc.db.Where(&user).Updates(&model.User{Password: newPasswordMD5}).RowsAffected; rows == 0 {
 		return utils.ErrWrapOrWithMessage(true, errors.New(consts.UpdatePasswordFail))
@@ -114,18 +131,14 @@ func (uc *userControllerImpl) UploadAvatar(c *gin.Context) (err error) {
 }
 
 // UploadFile 上传文件
-func (uc *userControllerImpl) UploadFile(c *gin.Context) (err error) {
-	var account string
+func (uc *userControllerImpl) UploadFile(c *gin.Context, account string) (err error) {
 	var file *multipart.FileHeader
-	if account, err = uc.GetAccountByCookie(c); err != nil {
-		return utils.ErrWrapOrWithMessage(false, err)
-	}
 	if file, err = c.FormFile("file"); err != nil {
 		return utils.ErrWrapOrWithMessage(true, err)
 	}
 
 	var filePath string
-	if filePath, err = mkdir(account); err != nil {
+	if filePath, err = getUploadFileDirPath(account); err != nil {
 		return utils.ErrWrapOrWithMessage(false, err)
 	}
 	filePath = filepath.Join(filePath, file.Filename)
@@ -167,8 +180,8 @@ func (uc *userControllerImpl) getUserByAccount(account string) (user *model.User
 	return user, nil
 }
 
-func mkdir(userName string) (filePath string, err error) {
-	filePath = filepath.Join(consts.DefaultUserFilePath, userName, time.Now().Format("2006/01/02"))
+func getUploadFileDirPath(userName string) (filePath string, err error) {
+	filePath = filepath.Join(consts.DefaultUserFilePath, userName)
 	if err = os.MkdirAll(filePath, os.ModePerm); err != nil {
 		log.Print("目录创建失败", err)
 		// return "", err

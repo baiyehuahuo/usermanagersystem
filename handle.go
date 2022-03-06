@@ -85,6 +85,23 @@ func (handle *handleManager) ForgetPassword(c *gin.Context) {
 	c.JSON(http.StatusOK, consts.ForgetPasswordSuccess)
 }
 
+func (handle *handleManager) GetUserFilesPath(c *gin.Context) {
+	account, err := handle.um.GetAccountByCookie(c)
+	if account == "" || err != nil {
+		log.Printf("GetUserFilesPath fail: user is not found.")
+		c.JSON(http.StatusInternalServerError, consts.UploadFail)
+		return
+	}
+	var result []string
+	if result, err = handle.um.GetUserFilesPath(c, account); err != nil {
+		log.Printf("GetUserFilesPath fail: %s \terr: %v.", account, err)
+		c.JSON(http.StatusInternalServerError, consts.UploadFail)
+		return
+	}
+	log.Printf("GetUserFilesPath success: %s.", account)
+	c.JSON(http.StatusOK, result)
+}
+
 // GetUserMessageByCookie 通过Cookie获取用户信息处理接口
 func (handle *handleManager) GetUserMessageByCookie(c *gin.Context) {
 	user, err := handle.um.GetUserMessageByCookie(c)
@@ -174,18 +191,18 @@ func (handle *handleManager) UserRegister(c *gin.Context) {
 
 // UploadFile 用户文件上传处理接口
 func (handle *handleManager) UploadFile(c *gin.Context) {
-	user, err := handle.um.GetAccountByCookie(c)
-	if err != nil {
+	account, err := handle.um.GetAccountByCookie(c)
+	if account == "" || err != nil {
 		log.Printf("UploadFile fail: user is not found.")
 		c.JSON(http.StatusInternalServerError, consts.UploadFail)
 		return
 	}
-	if err := handle.um.UploadFile(c); err != nil {
-		log.Printf("UploadFile fail: %s \terr: %v.", user, err)
+	if err := handle.um.UploadFile(c, account); err != nil {
+		log.Printf("UploadFile fail: %s \terr: %v.", account, err)
 		c.JSON(http.StatusInternalServerError, consts.UploadFail)
 		return
 	}
-	log.Printf("UploadFile success: %s.", user)
+	log.Printf("UploadFile success: %s.", account)
 	c.JSON(http.StatusOK, consts.UploadSuccess)
 }
 

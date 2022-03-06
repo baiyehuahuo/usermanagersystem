@@ -8,19 +8,31 @@ import (
 	"github.com/pkg/errors"
 )
 
+func netPrefixPath() string {
+	buffer := bytes.Buffer{}
+	buffer.WriteString(consts.HttpDomain)
+	buffer.WriteByte('/')
+	return buffer.String()
+}
+
 // GetNetAvatarPath 获取头像的网络路径
 func GetNetAvatarPath(account string, avatarExt string) string {
 	buffer := bytes.Buffer{}
+	buffer.WriteString(netPrefixPath())
 	if avatarExt == "" {
-		buffer.WriteString(consts.HttpDomain)
-		buffer.WriteByte('/')
 		buffer.WriteString(consts.DefaultStaticPath)
 		buffer.WriteString("/default_avatar.jpg")
 		return buffer.String()
 	}
-	buffer.WriteString(consts.HttpDomain)
-	buffer.WriteByte('/')
 	buffer.WriteString(GetLocalAvatarPath(account, avatarExt))
+	return buffer.String()
+}
+
+// GetNetUploadFilePath 获取文件的网络路径
+func GetNetUploadFilePath(account string, filePath string) string {
+	buffer := bytes.Buffer{}
+	buffer.WriteString(netPrefixPath())
+	buffer.WriteString(GetLocalUploadFilePath(account, filePath))
 	return buffer.String()
 }
 
@@ -33,6 +45,17 @@ func GetLocalAvatarPath(account string, avatarExt string) string {
 	buffer.WriteByte('_')
 	buffer.WriteString(consts.DefaultAvatarSuffix)
 	buffer.WriteString(avatarExt)
+	return buffer.String()
+}
+
+// GetNetUploadFilePath 获取文件的本地路径
+func GetLocalUploadFilePath(account string, fileName string) string {
+	buffer := bytes.Buffer{}
+	buffer.WriteString(consts.DefaultUserFilePath)
+	buffer.WriteByte('/')
+	buffer.WriteString(account)
+	buffer.WriteByte('/')
+	buffer.WriteString(fileName)
 	return buffer.String()
 }
 
