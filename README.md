@@ -23,23 +23,24 @@
 
 ### 后端接口
 
-| 接口名              | 说明                 | 方法 |
-| ------------------- | -------------------- | ---- |
-| CheckAuthCode       | 检测验证码           | GET  |
-| CheckEmailAvailable | 检测邮箱可用         | GET  |
-| ForgetPassword      | 通过邮箱验证修改密码 | POST |
-| GetUserMessage      | 获取用户信息         | GET  |
-| ModifyPassword      | 修改密码             | POST |
-| RestoreMySQL        | 恢复数据库           | GET  |
-| UploadAvatar        | 上传头像             | POST |
-| UploadFile          | 上传文件             | POST |
-| UserLogin           | 用户登录             | GET  |
-| UserRegister        | 用户注册             | GET  |
-| SendAuthCode        | 发送邮箱验证码       | GET  |
+| 接口名              | 说明                               | 方法 |
+| ------------------- | ---------------------------------- | ---- |
+| CheckAuthCode       | 检测验证码                         | GET  |
+| CheckEmailAvailable | 检测邮箱可用（格式错误、已被注册） | GET  |
+| ForgetPassword      | 通过邮箱验证修改密码               | POST |
+| GetUserFilesPath    | 获取该用户上传的文件的路径         | GET  |
+| GetUserMessage      | 获取用户信息                       | GET  |
+| ModifyPassword      | 修改密码                           | POST |
+| RestoreMySQL        | 恢复数据库                         | GET  |
+| UploadAvatar        | 上传头像                           | POST |
+| UploadFile          | 上传文件                           | POST |
+| UserLogin           | 用户登录                           | GET  |
+| UserRegister        | 用户注册                           | GET  |
+| SendAuthCode        | 发送邮箱验证码                     | GET  |
 
 #### CheckAuthCode
 
-GET：检测验证码
+GET：检测邮箱验证码是否正确
 
 | 字段名    | 类型   | 说明       | 必选 |
 | --------- | ------ | ---------- | ---- |
@@ -48,7 +49,7 @@ GET：检测验证码
 
 #### CheckEmailAvailable
 
-GET：检测邮箱可用
+GET：检测邮箱可用（格式错误？已被注册？）
 
 | 字段名 | 类型   | 说明 | 必选 |
 | ------ | ------ | ---- | ---- |
@@ -64,6 +65,10 @@ POST：通过邮箱验证修改密码
 | auth_code    | int    | 对应验证码 | √    |
 | new_password | string | 新密码     | √    |
 
+#### GetUserFilesPath
+
+GET：获取该用户上传的所有文件的路径
+
 #### GetUserMessage
 
 GET：获取用户信息 （无参数 通过 `cookie` 获取用户信息）
@@ -77,7 +82,7 @@ POST：修改密码
 | oldPassword | string | 旧密码 | √    |
 | newPassword | string | 新密码 | √    |
 
-#### ModifyPassword
+#### RestoreMySQL
 
 GET：恢复最近保存的数据库信息
 
@@ -91,7 +96,7 @@ POST：上传头像图片（前后端都应该需要进行简单检测）
 
 #### UploadFile
 
-POST：上传文件（测试文件上传功能 后期删掉）
+POST：上传文件
 
 | 字段名 | 类型 | 说明     | 必选 |
 | ------ | ---- | -------- | ---- |
@@ -125,7 +130,3 @@ GET：发送邮箱验证码
 | 字段名 | 类型   | 说明 | 必选 |
 | ------ | ------ | ---- | ---- |
 | email  | string | 邮箱 | √    |
-
-TODO：
-
-3. 前后端都需要检测邮箱是否合法
