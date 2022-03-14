@@ -131,7 +131,7 @@ func (uc *userControllerImpl) UploadAvatar(c *gin.Context) (err error) {
 }
 
 // UploadFile 上传文件
-func (uc *userControllerImpl) UploadFile(c *gin.Context, account string) (err error) {
+func (uc *userControllerImpl) UploadPng(c *gin.Context, account string) (err error) {
 	var file *multipart.FileHeader
 	if file, err = c.FormFile("file"); err != nil {
 		return utils.ErrWrapOrWithMessage(true, err)
@@ -181,25 +181,11 @@ func (uc *userControllerImpl) getUserByAccount(account string) (user *model.User
 }
 
 func getUploadFileDirPath(userName string) (filePath string, err error) {
-	filePath = filepath.Join(consts.DefaultUserFilePath, userName)
+	filePath = filepath.Join(consts.DefaultUserPngPath, userName)
 	if err = os.MkdirAll(filePath, os.ModePerm); err != nil {
 		log.Print("目录创建失败", err)
 		// return "", err
 		return "", utils.ErrWrapOrWithMessage(true, err)
 	}
 	return filePath, nil
-}
-
-func chmodFile(filePath string, mod os.FileMode) (err error) {
-	f, err := os.Open(filePath)
-	if err != nil {
-		return utils.ErrWrapOrWithMessage(true, err)
-	}
-	if err = f.Chmod(mod); err != nil {
-		return utils.ErrWrapOrWithMessage(true, err)
-	}
-	if err = f.Close(); err != nil {
-		return utils.ErrWrapOrWithMessage(true, err)
-	}
-	return nil
 }

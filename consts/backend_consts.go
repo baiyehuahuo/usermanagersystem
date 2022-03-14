@@ -9,12 +9,11 @@ const (
 	AuthCodeContinueTime   = 30 * time.Second
 	AuthCodeCacheFlushTime = 300 * time.Second
 
-	DefaultFileRootPath = "upload_files"
-	DefaultUserFilePath = DefaultFileRootPath + "/user_files"
-	DefaultAvatarPath   = "avatars"
-	DefaultMoviePath    = DefaultFileRootPath + "/movies"
-	DefaultStaticPath   = "static"
-	DefaultAvatarSuffix = "avatar"
+	DefaultUserPngRootPath = "user_files"
+	DefaultUserPngPath     = DefaultUserPngRootPath + "/user_png"
+	DefaultAvatarPath      = "avatars"
+	DefaultStaticPath      = "static"
+	DefaultAvatarSuffix    = "avatar"
 
 	CookieNameOfUser            = "UserCookie"
 	CookieContinueTime          = 300 // 单位是秒 3600 就是一小时

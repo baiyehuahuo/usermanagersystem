@@ -51,7 +51,7 @@ func GetLocalAvatarPath(account string, avatarExt string) string {
 // GetNetUploadFilePath 获取文件的本地路径
 func GetLocalUploadFilePath(account string, fileName string) string {
 	buffer := bytes.Buffer{}
-	buffer.WriteString(consts.DefaultUserFilePath)
+	buffer.WriteString(consts.DefaultUserPngPath)
 	buffer.WriteByte('/')
 	buffer.WriteString(account)
 	buffer.WriteByte('/')

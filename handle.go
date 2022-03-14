@@ -190,14 +190,14 @@ func (handle *handleManager) UserRegister(c *gin.Context) {
 }
 
 // UploadFile 用户文件上传处理接口
-func (handle *handleManager) UploadFile(c *gin.Context) {
+func (handle *handleManager) UploadPng(c *gin.Context) {
 	account, err := handle.um.GetAccountByCookie(c)
 	if account == "" || err != nil {
 		log.Printf("UploadFile fail: user is not found.")
 		c.JSON(http.StatusInternalServerError, consts.UploadFail)
 		return
 	}
-	if err := handle.um.UploadFile(c, account); err != nil {
+	if err := handle.um.UploadPng(c, account); err != nil {
 		log.Printf("UploadFile fail: %s \terr: %v.", account, err)
 		c.JSON(http.StatusInternalServerError, consts.UploadFail)
 		return
@@ -244,7 +244,7 @@ func (handle *handleManager) SendAuthCode(c *gin.Context) {
 
 // UploadFilePathCreate 创建文件上传路径
 func UploadFilePathCreate() (err error) {
-	if err = os.MkdirAll(consts.DefaultUserFilePath, os.ModePerm); err != nil {
+	if err = os.MkdirAll(consts.DefaultUserPngPath, os.ModePerm); err != nil {
 		log.Print("目录创建失败 ", err)
 		return err
 	}

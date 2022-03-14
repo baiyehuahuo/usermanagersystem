@@ -54,8 +54,8 @@ func main() {
 	router.LoadHTMLGlob("templates/*")                                // html 文件
 	router.Static(consts.DefaultStaticPath, consts.DefaultStaticPath) // 静态文件映射
 	router.Static(consts.DefaultAvatarPath, consts.DefaultAvatarPath)
-	router.Static(consts.DefaultFileRootPath, consts.DefaultFileRootPath)
-	mime.AddExtensionType(".js", "application/javascript")
+	router.Static(consts.DefaultUserPngRootPath, consts.DefaultUserPngRootPath)
+	_ = mime.AddExtensionType(".js", "application/javascript")
 	router.GET("/", htmlManager.ToLogin)
 
 	handle := handleManager{
@@ -74,7 +74,7 @@ func main() {
 	router.POST("/ModifyPassword", handle.ModifyPassword)
 	router.POST("/ForgetPassword", handle.ForgetPassword)
 	router.POST("/UploadAvatar", handle.UploadAvatar)
-	router.POST("/UploadFile", handle.UploadFile)
+	router.POST("/UploadPng", handle.UploadPng)
 	if err := os.MkdirAll(consts.DefaultAvatarPath, os.ModePerm); err != nil {
 		log.Fatal("目录创建失败 ", err)
 	}
