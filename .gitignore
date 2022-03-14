@@ -1,7 +1,9 @@
 .idea
 
-temp
+main.exe
+my_model
 
+temp/
 uploadfiles/
 avatars/
 test/

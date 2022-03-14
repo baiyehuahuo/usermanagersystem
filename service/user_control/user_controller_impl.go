@@ -7,6 +7,7 @@ import (
 	"log"
 	"mime/multipart"
 	"os"
+	"os/exec"
 	"path"
 	"path/filepath"
 	"usermanagersystem/consts"
@@ -69,6 +70,21 @@ func (uc *userControllerImpl) ModifyPassword(c *gin.Context, account, oldPasswor
 	}
 
 	return nil
+}
+
+// PredictPng 预测的图片
+func (uc *userControllerImpl) PredictPng(c *gin.Context, account string, pngName string) (predictPath string, err error) {
+	var filePath string
+	if filePath, err = getUploadPngDirPath(account); err != nil {
+		return "", utils.ErrWrapOrWithMessage(false, err)
+	}
+	filePath = filepath.Join(filePath, pngName)
+	cmd := exec.Command("main.exe", filePath)
+	if err := cmd.Run(); err != nil {
+		return "", utils.ErrWrapOrWithMessage(true, err)
+	}
+
+	return utils.GetNetUploadFilePath(account, pngName[:len(pngName)-len(path.Ext(pngName))]+"_predict.png"), nil
 }
 
 // SetPassword 按照邮箱设置密码

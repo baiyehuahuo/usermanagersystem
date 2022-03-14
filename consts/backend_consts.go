@@ -22,6 +22,9 @@ const (
 	CookieValidationDomainLocal = "localhost"
 	CookieTimeOutError          = "cookie is timeout"
 
+	PredictSuccess = "PredictPng success"
+	PredictFail    = "PredictPng fail"
+
 	RedisCookieHashPrefix        = "UserCookie_"
 	RedisAuthCodePrefix          = "AuthCode_" // 假如保存在redis的前缀名
 	RedisUserMessagePrefix       = "UserMessage_"

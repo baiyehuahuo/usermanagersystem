@@ -36,8 +36,7 @@ func BackupMySQL() {
 	config := Config.MysqlConfig
 	var cmd *exec.Cmd
 
-	cmd = exec.Command("mysqldump", "--opt", "-h"+config.Host, "-P"+strconv.Itoa(config.Port),
-		"-u"+config.UserAccount, "-p"+config.Password, config.DbName)
+	cmd = exec.Command("mysqldump", "--opt", "-h"+config.Host, "-P"+strconv.Itoa(config.Port), "-u"+config.UserAccount, "-p"+config.Password, config.DbName)
 
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {

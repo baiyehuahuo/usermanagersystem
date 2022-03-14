@@ -24,26 +24,6 @@ type handleManager struct {
 
 // get post 参数在本层校验
 
-// CheckAuthCode 验证码检测处理接口
-func (handle *handleManager) CheckAuthCode(c *gin.Context) {
-	email := c.Query("email")
-	authCode, err := strconv.Atoi(c.Query("auth_code"))
-	if err != nil || !verifyEmailFormat(email) {
-		log.Printf("CheckAuthCode fail: %s get auth code fail.", email)
-		c.JSON(http.StatusBadRequest, consts.InputParamsError)
-		return
-	}
-
-	if err := handle.lm.CheckAuthCode(c, email, authCode); err != nil {
-		log.Printf("CheckAuthCode fail: %s check auth code fail.", email)
-		c.JSON(http.StatusInternalServerError, consts.CheckAuthCodeFail)
-		return
-	}
-
-	log.Printf("CheckAuthCode success: %s check auth code success.", email)
-	c.JSON(http.StatusOK, consts.CheckAuthCodeSuccess)
-}
-
 // CheckEmailAvailable 验证码检测处理接口
 func (handle *handleManager) CheckEmailAvailable(c *gin.Context) {
 	email := c.Query("email")
@@ -143,6 +123,32 @@ func (handle *handleManager) ModifyPassword(c *gin.Context) {
 	c.JSON(http.StatusOK, consts.ModifyPasswordSuccess)
 }
 
+// PredictPng 分割Png
+func (handle *handleManager) PredictPng(c *gin.Context) {
+	predictPngName := c.Query("predict_png_name")
+	if predictPngName == "" {
+		log.Printf("PredictPng fail: params has wrong.")
+		c.JSON(http.StatusInternalServerError, consts.InputParamsError)
+		return
+	}
+
+	account, err := handle.um.GetAccountByCookie(c)
+	if account == "" || err != nil {
+		log.Printf("Predict fail: user is not found.")
+		c.JSON(http.StatusInternalServerError, consts.PredictFail)
+		return
+	}
+
+	var predictPath string
+	if predictPath, err = handle.um.PredictPng(c, account, predictPngName); err != nil {
+		log.Printf("Predict fail: %v", err)
+		c.JSON(http.StatusInternalServerError, consts.PredictFail)
+		return
+	}
+	log.Printf("Predict success: %s\t%s", account, predictPngName)
+	c.JSON(http.StatusOK, predictPath)
+}
+
 // RestoreMySQL 恢复数据库
 func (handle *handleManager) RestoreMySQL(c *gin.Context) {
 	utils.RestoreMySQL()
@@ -239,24 +245,6 @@ func (handle *handleManager) SendAuthCode(c *gin.Context) {
 		return
 	}
 	log.Printf("SendAuthCode success: %s", email)
-	c.JSON(http.StatusOK, consts.SendAuthCodeSuccess)
-}
-
-// SendAuthCode 通过用户的cookie来发送验证码
-func (handle *handleManager) SendAuthCodeByCookie(c *gin.Context) {
-	user, err := handle.um.GetUserMessageByCookie(c)
-	if err != nil {
-		log.Printf("SendAuthCode fail: %s \terr: %v.", user, err)
-		c.JSON(http.StatusInternalServerError, consts.GetUserMessageFail)
-		return
-	}
-
-	if err := handle.lm.SendAuthCode(c, user.Email); err != nil {
-		log.Printf("SendAuthCode fail: %s \terr: %v", user.Email, err)
-		c.JSON(http.StatusInternalServerError, consts.SendAuthCodeFail)
-		return
-	}
-	log.Printf("SendAuthCode success: %s", user.Email)
 	c.JSON(http.StatusOK, consts.SendAuthCodeSuccess)
 }
 

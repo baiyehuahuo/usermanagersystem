@@ -16,6 +16,7 @@ type UserController interface {
 	ModifyPassword(c *gin.Context, account string, oldPassword string, newPassword string) (err error)
 	UploadPng(c *gin.Context, account string) (err error)
 	UploadAvatar(c *gin.Context) (err error)
+	PredictPng(c *gin.Context, account string, pngName string) (predictPath string, err error)
 }
 
 func New() UserController {
