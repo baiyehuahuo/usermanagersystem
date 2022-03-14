@@ -24,9 +24,10 @@ type userControllerImpl struct {
 	rc utils.RedisController
 }
 
+// GetUserFilesPath 获取该用户的所有png文件
 func (uc *userControllerImpl) GetUserFilesPath(c *gin.Context, account string) (result []string, err error) {
 	var filesDirPath string
-	if filesDirPath, err = getUploadFileDirPath(account); err != nil {
+	if filesDirPath, err = getUploadPngDirPath(account); err != nil {
 		return nil, utils.ErrWrapOrWithMessage(false, err)
 	}
 	var fileListInfo []os.FileInfo
@@ -138,7 +139,7 @@ func (uc *userControllerImpl) UploadPng(c *gin.Context, account string) (err err
 	}
 
 	var filePath string
-	if filePath, err = getUploadFileDirPath(account); err != nil {
+	if filePath, err = getUploadPngDirPath(account); err != nil {
 		return utils.ErrWrapOrWithMessage(false, err)
 	}
 	filePath = filepath.Join(filePath, file.Filename)
@@ -180,7 +181,7 @@ func (uc *userControllerImpl) getUserByAccount(account string) (user *model.User
 	return user, nil
 }
 
-func getUploadFileDirPath(userName string) (filePath string, err error) {
+func getUploadPngDirPath(userName string) (filePath string, err error) {
 	filePath = filepath.Join(consts.DefaultUserPngPath, userName)
 	if err = os.MkdirAll(filePath, os.ModePerm); err != nil {
 		log.Print("目录创建失败", err)

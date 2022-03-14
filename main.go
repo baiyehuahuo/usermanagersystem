@@ -78,9 +78,6 @@ func main() {
 	if err := os.MkdirAll(consts.DefaultAvatarPath, os.ModePerm); err != nil {
 		log.Fatal("目录创建失败 ", err)
 	}
-	// log.Println(utils.GetDB().ToSQL(func(tx *gorm.DB) *gorm.DB {
-	// 	return tx.Where(model.User{Email: "6@qq.com"}).First(&model.User{})
-	// }))
 	if err := router.Run(); err != nil {
 		log.Fatal(err)
 	}
