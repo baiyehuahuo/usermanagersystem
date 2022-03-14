@@ -70,6 +70,7 @@ func main() {
 	router.GET("/UserLogin", handle.UserLogin)
 	router.GET("/UserRegister", handle.UserRegister)
 	router.GET("/SendAuthCode", handle.SendAuthCode)
+	router.GET("/SendAuthCodeByCookie", handle.SendAuthCodeByCookie)
 
 	router.POST("/ModifyPassword", handle.ModifyPassword)
 	router.POST("/ForgetPassword", handle.ForgetPassword)

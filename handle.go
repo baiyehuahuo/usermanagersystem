@@ -242,6 +242,24 @@ func (handle *handleManager) SendAuthCode(c *gin.Context) {
 	c.JSON(http.StatusOK, consts.SendAuthCodeSuccess)
 }
 
+// SendAuthCode 通过用户的cookie来发送验证码
+func (handle *handleManager) SendAuthCodeByCookie(c *gin.Context) {
+	user, err := handle.um.GetUserMessageByCookie(c)
+	if err != nil {
+		log.Printf("SendAuthCode fail: %s \terr: %v.", user, err)
+		c.JSON(http.StatusInternalServerError, consts.GetUserMessageFail)
+		return
+	}
+
+	if err := handle.lm.SendAuthCode(c, user.Email); err != nil {
+		log.Printf("SendAuthCode fail: %s \terr: %v", user.Email, err)
+		c.JSON(http.StatusInternalServerError, consts.SendAuthCodeFail)
+		return
+	}
+	log.Printf("SendAuthCode success: %s", user.Email)
+	c.JSON(http.StatusOK, consts.SendAuthCodeSuccess)
+}
+
 // UploadFilePathCreate 创建文件上传路径
 func UploadFilePathCreate() (err error) {
 	if err = os.MkdirAll(consts.DefaultUserPngPath, os.ModePerm); err != nil {
