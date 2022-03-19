@@ -158,12 +158,12 @@ func (handle *handleManager) ModifyPassword(c *gin.Context) {
 	returnSuccess(c)
 }
 
-// PredictPng 分割Png todo
+// PredictPng 分割Png
 func (handle *handleManager) PredictPng(c *gin.Context) {
 	predictPngName := c.Query("predict_png_name")
 	if predictPngName == "" {
 		log.Printf("PredictPng fail: params has wrong.")
-		c.JSON(http.StatusInternalServerError, consts.InputParamsError)
+		returnFail(c, model.Err{Code: consts.InputParamsWrong})
 		return
 	}
 
@@ -176,13 +176,17 @@ func (handle *handleManager) PredictPng(c *gin.Context) {
 
 	var predictPath string
 	var err error
-	if predictPath, err = handle.um.PredictPng(c, account, predictPngName); err != nil {
+	if predictPath, Err = handle.um.PredictPng(c, account, predictPngName); Err.Code != consts.OperateSuccess {
 		log.Printf("Predict fail: %v", err)
-		c.JSON(http.StatusInternalServerError, consts.PredictFail)
+		returnFail(c, Err)
 		return
 	}
 	log.Printf("Predict success: %s\t%s", account, predictPngName)
-	c.JSON(http.StatusOK, predictPath)
+	c.JSON(http.StatusOK, model.Err{
+		Code: consts.OperateSuccess,
+		Msg:  consts.ErrCodeMessage[consts.OperateSuccess],
+		Data: predictPath,
+	})
 }
 
 // RestoreMySQL 恢复数据库 todo

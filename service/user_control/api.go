@@ -16,7 +16,7 @@ type UserController interface {
 	ModifyPassword(c *gin.Context, account string, oldPassword string, newPassword string) (Err model.Err)
 	UploadPng(c *gin.Context, account string) (Err model.Err)
 	UploadAvatar(c *gin.Context) (Err model.Err)
-	PredictPng(c *gin.Context, account string, pngName string) (predictPath string, err error)
+	PredictPng(c *gin.Context, account string, pngName string) (predictPath string, Err model.Err)
 	DeletePng(c *gin.Context, account string, pngName string) (err error)
 }
 

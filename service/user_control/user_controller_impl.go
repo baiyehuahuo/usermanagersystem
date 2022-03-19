@@ -84,18 +84,24 @@ func (uc *userControllerImpl) ModifyPassword(c *gin.Context, account, oldPasswor
 }
 
 // PredictPng 预测的图片
-func (uc *userControllerImpl) PredictPng(c *gin.Context, account string, pngName string) (predictPath string, err error) {
+func (uc *userControllerImpl) PredictPng(c *gin.Context, account string, pngName string) (predictPath string, Err model.Err) {
 	var filePath string
+	var err error
 	if filePath, err = getUploadPngDirPath(account); err != nil {
-		return "", utils.ErrWrapOrWithMessage(false, err)
+		Err.Code = consts.SystemError
+		Err.Msg = utils.ErrWrapOrWithMessage(false, err).Error()
+		return "", Err
 	}
 	filePath = filepath.Join(filePath, pngName)
 	cmd := exec.Command("main.exe", filePath)
 	if err := cmd.Run(); err != nil {
-		return "", utils.ErrWrapOrWithMessage(true, err)
+		Err.Code = consts.SystemError
+		Err.Msg = utils.ErrWrapOrWithMessage(true, err).Error()
+		return "", Err
 	}
 
-	return utils.GetNetUploadFilePath(account, pngName[:len(pngName)-len(path.Ext(pngName))]+"_predict.png"), nil
+	Err.Code = consts.OperateSuccess
+	return utils.GetNetUploadFilePath(account, pngName[:len(pngName)-len(path.Ext(pngName))]+"_predict.png"), Err
 }
 
 func (uc *userControllerImpl) DeletePng(c *gin.Context, account string, pngName string) (err error) {
