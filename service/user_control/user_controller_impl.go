@@ -43,18 +43,20 @@ func (uc *userControllerImpl) GetUserFilesPath(c *gin.Context, account string) (
 }
 
 // GetUserMessageByCookie 通过Cookie获取用户信息
-func (uc *userControllerImpl) GetUserMessageByCookie(c *gin.Context) (user *model.User, err error) {
+func (uc *userControllerImpl) GetUserMessageByCookie(c *gin.Context) (user *model.User, Err model.Err) {
 	var account string
-
-	if account, err = uc.GetAccountByCookie(c); err != nil {
+	var err error
+	if account, Err = uc.GetAccountByCookie(c); Err.Code != consts.OperateSuccess {
 		// return nil, err
-		return nil, utils.ErrWrapOrWithMessage(false, err)
+		return nil, Err
 	}
 	if user, err = uc.getUserByAccount(account); err != nil {
-		return nil, utils.ErrWrapOrWithMessage(false, err)
+		Err.Code = consts.UserNotFound
+		Err.Msg = utils.ErrWrapOrWithMessage(false, err).Error()
+		return nil, Err
 	}
-
-	return user, nil
+	Err.Code = consts.OperateSuccess
+	return user, Err
 }
 
 // ModifyPassword 修改密码
@@ -116,50 +118,64 @@ func (uc *userControllerImpl) SetPassword(c *gin.Context, email string, password
 }
 
 // UploadAvatar 上传头像
-func (uc *userControllerImpl) UploadAvatar(c *gin.Context) (err error) {
+func (uc *userControllerImpl) UploadAvatar(c *gin.Context) (Err model.Err) {
 	var account string
 	var file *multipart.FileHeader
-
-	if account, err = uc.GetAccountByCookie(c); err != nil {
-		return utils.ErrWrapOrWithMessage(false, err)
+	var err error
+	if account, Err = uc.GetAccountByCookie(c); Err.Code != consts.OperateSuccess {
+		return Err
 	}
 
 	if file, err = c.FormFile("avatar"); err != nil {
-		return utils.ErrWrapOrWithMessage(true, err)
+		Err.Code = consts.InputParamsWrong
+		Err.Msg = utils.ErrWrapOrWithMessage(true, err).Error()
+		return Err
 	}
 
 	filePath := filepath.Join(consts.DefaultAvatarPath, fmt.Sprintf("%s_%s%s", account, consts.DefaultAvatarSuffix, path.Ext(file.Filename)))
 
 	user := model.User{Account: account}
 	if err = utils.GetDB().Where(&user).Take(&user).Error; err != nil {
-		return utils.ErrWrapOrWithMessage(true, err)
+		Err.Code = consts.DatabaseWrong
+		Err.Msg = utils.ErrWrapOrWithMessage(true, err).Error()
+		return Err
 	}
 	if user.AvatarExt != "" {
 		if err = uc.rc.DeleteUser(account); err != nil {
-			return utils.ErrWrapOrWithMessage(false, err)
+			Err.Code = consts.DatabaseWrong
+			Err.Msg = utils.ErrWrapOrWithMessage(false, err).Error()
+			return Err
 		}
 		if err = os.Remove(utils.GetLocalAvatarPath(user.Account, user.AvatarExt)); err != nil {
-			return utils.ErrWrapOrWithMessage(true, err)
+			Err.Code = consts.SystemError
+			Err.Msg = utils.ErrWrapOrWithMessage(true, err).Error()
+			return Err
 		}
 	}
 	if err = utils.GetDB().Where(&user).Updates(&model.User{AvatarExt: path.Ext(file.Filename)}).Error; err != nil {
-		return utils.ErrWrapOrWithMessage(true, err)
+		Err.Code = consts.DatabaseWrong
+		Err.Msg = utils.ErrWrapOrWithMessage(true, err).Error()
+		return Err
 	}
 
 	// todo 如果保存文件失败 那数据库里的数据怎么办？
 	// fmt.Println(filePath)
 	if err = c.SaveUploadedFile(file, filePath); err != nil {
-		return utils.ErrWrapOrWithMessage(true, err)
+		Err.Code = consts.SystemError
+		Err.Msg = utils.ErrWrapOrWithMessage(true, err).Error()
+		return Err
 	}
 
 	if err = uc.rc.DeleteUser(account); err != nil {
-		return utils.ErrWrapOrWithMessage(false, err)
+		Err.Code = consts.DatabaseWrong
+		Err.Msg = utils.ErrWrapOrWithMessage(false, err).Error()
+		return Err
 	}
 	// if err = chmodFile(filePath, 0444); err != nil {
 	// 	return errors.WithMessage(err, utils.RunFuncNameWithFail())
 	// }
-
-	return nil
+	Err.Code = consts.OperateSuccess
+	return Err
 }
 
 // UploadFile 上传文件
@@ -183,30 +199,29 @@ func (uc *userControllerImpl) UploadPng(c *gin.Context, account string) (err err
 }
 
 // getAccount 通过cookie获取账户
-func (uc *userControllerImpl) GetAccountByCookie(c *gin.Context) (account string, err error) {
+func (uc *userControllerImpl) GetAccountByCookie(c *gin.Context) (account string, Err model.Err) {
 	if cookie, err := c.Cookie(consts.CookieNameOfUser); err == nil {
 		account, _ = uc.rc.Get(consts.RedisCookieHashPrefix + cookie)
 	}
 	if account == "" {
-		return "", utils.ErrWrapOrWithMessage(true, errors.New(consts.CookieTimeOutError))
+		Err.Code = consts.InputParamsWrong
+		Err.Msg = utils.ErrWrapOrWithMessage(true, errors.New(consts.CookieTimeOutError)).Error()
+		return "", Err
 	}
-	return account, nil
+	Err.Code = consts.OperateSuccess
+	return account, Err
 }
 
 func (uc *userControllerImpl) getUserByAccount(account string) (user *model.User, err error) {
 	user, err = uc.rc.GetUser(account)
 	if user != nil && err == nil {
-		// log.Printf("get user %s from redis", account)
 		return user, nil
 	}
-	// log.Printf("not get user %s from redis %v: %v", account, user, err)
 	user = &model.User{Account: account}
 	if err = uc.db.Where(user).Take(user).Error; err == gorm.ErrRecordNotFound {
-		// return nil, err
 		return nil, utils.ErrWrapOrWithMessage(true, err)
 	}
 	if err = uc.rc.SetUser(*user); err != nil {
-		// return nil, err
 		return nil, utils.ErrWrapOrWithMessage(false, err)
 	}
 	return user, nil

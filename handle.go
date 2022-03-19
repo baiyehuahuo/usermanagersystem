@@ -44,9 +44,9 @@ func (handle *handleManager) CheckEmailAvailable(c *gin.Context) {
 // DeletePng 验证码检测处理接口 todo
 func (handle *handleManager) DeletePng(c *gin.Context) {
 	account, err := handle.um.GetAccountByCookie(c)
-	if account == "" || err != nil {
+	if account == "" || err.Code != consts.OperateSuccess {
 		log.Printf("DeletePng fail: user is not found.")
-		c.JSON(http.StatusInternalServerError, consts.DeleteFail)
+		returnFail(c, err)
 		return
 	}
 	png := c.PostForm("delete_png")
@@ -90,22 +90,26 @@ func (handle *handleManager) ForgetPassword(c *gin.Context) {
 	returnSuccess(c)
 }
 
-// todo
 func (handle *handleManager) GetUserFilesPath(c *gin.Context) {
 	account, err := handle.um.GetAccountByCookie(c)
-	if account == "" || err != nil {
+	if account == "" || err.Code != consts.OperateSuccess {
 		log.Printf("GetUserFilesPath fail: user is not found.")
-		c.JSON(http.StatusInternalServerError, consts.UploadFail)
+		returnFail(c, err)
 		return
 	}
 	var result []string
-	if result, err = handle.um.GetUserFilesPath(c, account); err != nil {
+	if result, err = handle.um.GetUserFilesPath(c, account); err.Code != consts.OperateSuccess {
 		log.Printf("GetUserFilesPath fail: %s \terr: %v.", account, err)
-		c.JSON(http.StatusInternalServerError, consts.UploadFail)
+		returnFail(c, err)
 		return
 	}
 	log.Printf("GetUserFilesPath success: %s.", account)
-	c.JSON(http.StatusOK, result)
+
+	c.JSON(http.StatusOK, model.Err{
+		Code: consts.OperateSuccess,
+		Msg:  consts.ErrCodeMessage[consts.OperateSuccess],
+		Data: result,
+	})
 }
 
 // todo

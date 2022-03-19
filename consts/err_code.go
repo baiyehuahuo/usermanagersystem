@@ -10,6 +10,7 @@ const (
 	EmailIsRegistered       = 100004
 	UpdatePasswordFail      = 100005
 	SendAuthCodeByEmailFail = 100011
+	SystemError             = 999998
 	DatabaseWrong           = 999999
 )
 
@@ -23,6 +24,7 @@ var (
 		EmailIsRegistered:       "邮箱已被注册",
 		UpdatePasswordFail:      "更新密码失败",
 		SendAuthCodeByEmailFail: "邮箱验证码发送失败",
+		SystemError:             "系统错误",
 		DatabaseWrong:           "数据库错误",
 	}
 )
