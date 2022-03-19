@@ -29,7 +29,7 @@ func (handle *handleManager) CheckEmailAvailable(c *gin.Context) {
 	email := c.Query("email")
 	if !verifyEmailFormat(email) {
 		log.Printf("CheckEmailAvailable fail: email is wrong.")
-		c.JSON(http.StatusInternalServerError, consts.InputParamsError)
+		returnFail(c, model.Err{Code: consts.InputParamsWrong})
 		return
 	}
 	if err := handle.lm.CheckEmailAvailable(c, email); err.Code != consts.OperateSuccess {
@@ -41,7 +41,7 @@ func (handle *handleManager) CheckEmailAvailable(c *gin.Context) {
 	returnSuccess(c)
 }
 
-// DeletePng 验证码检测处理接口 todo
+// DeletePng 验证码检测处理接口
 func (handle *handleManager) DeletePng(c *gin.Context) {
 	account, err := handle.um.GetAccountByCookie(c)
 	if account == "" || err.Code != consts.OperateSuccess {
@@ -189,7 +189,7 @@ func (handle *handleManager) PredictPng(c *gin.Context) {
 	})
 }
 
-// RestoreMySQL 恢复数据库 todo
+// RestoreMySQL 恢复数据库
 func (handle *handleManager) RestoreMySQL(c *gin.Context) {
 	utils.RestoreMySQL()
 }

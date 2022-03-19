@@ -232,8 +232,8 @@ func (uc *userControllerImpl) GetAccountByCookie(c *gin.Context) (account string
 		account, _ = uc.rc.Get(consts.RedisCookieHashPrefix + cookie)
 	}
 	if account == "" {
-		Err.Code = consts.InputParamsWrong
-		Err.Msg = utils.ErrWrapOrWithMessage(true, errors.New(consts.CookieTimeOutError)).Error()
+		Err.Code = consts.CookieTimeOut
+		Err.Msg = utils.ErrWrapOrWithMessage(true, errors.New(consts.ErrCodeMessage[Err.Code])).Error()
 		return "", Err
 	}
 	Err.Code = consts.OperateSuccess

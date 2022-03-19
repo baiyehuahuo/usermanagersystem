@@ -85,6 +85,4 @@ func main() {
 	}
 }
 
-// todo 添加一个删除文件的接口
 // todo rabbitmq与模型识别结合 减去加载模型的时间
-// todo 丰富错误信息处理

@@ -12,40 +12,33 @@
 | 目录        | 作用                               |
 | ----------- | ---------------------------------- |
 | configs     | 配置文件、SQL 结构文件              |
-| consts      | 常量规范 如登录成功 / 失败等提示信息 |
+| consts      | 常量规范 如登录成功 / 失败 等提示信息 |
 | model       | 常用结构体                         |
 | service     | 服务层，实现功能                   |
 | static      | 前端静态文件                       |
 | templates   | HTML 界面                           |
-| uploadfiles | 用户上传文件及头像（`gitignore`）    |
+| user_files | 用户上传png  |
 | utils       | 工具包，读取配置文件、连接数据库等 |
 | systemlogs | 日志文件及数据库备份 |
+| avatars | 头像文件 |
 
 ### 后端接口
 
 | 接口名              | 说明                               | 方法 |
 | ------------------- | ---------------------------------- | ---- |
-| CheckAuthCode       | 检测验证码                         | GET  |
 | CheckEmailAvailable | 检测邮箱可用（格式错误、已被注册） | GET  |
-| ForgetPassword      | 通过邮箱验证修改密码               | POST |
 | GetUserFilesPath    | 获取该用户上传的文件的路径         | GET  |
 | GetUserMessage      | 获取用户信息                       | GET  |
-| ModifyPassword      | 修改密码                           | POST |
+| PredictPng          | 对png文件进行预测                  | GET  |
 | RestoreMySQL        | 恢复数据库                         | GET  |
-| UploadAvatar        | 上传头像                           | POST |
-| UploadFile          | 上传文件                           | POST |
 | UserLogin           | 用户登录                           | GET  |
 | UserRegister        | 用户注册                           | GET  |
 | SendAuthCode        | 发送邮箱验证码                     | GET  |
-
-#### CheckAuthCode
-
-GET：检测邮箱验证码是否正确
-
-| 字段名    | 类型   | 说明       | 必选 |
-| --------- | ------ | ---------- | ---- |
-| email     | string | 邮箱       | √    |
-| auth_code | int    | 对应验证码 | √    |
+| ModifyPassword      | 用户登录后根据旧密码修改密码       | POST |
+| ForgetPassword      | 通过邮箱验证修改密码               | POST |
+| UploadAvatar        | 上传头像                           | POST |
+| UploadPng           | 上传Png文件                        | POST |
+| DeletePng           | 删除Png文件                        | POST |
 
 #### CheckEmailAvailable
 
@@ -54,6 +47,16 @@ GET：检测邮箱可用（格式错误？已被注册？）
 | 字段名 | 类型   | 说明 | 必选 |
 | ------ | ------ | ---- | ---- |
 | email  | string | 邮箱 | √    |
+
+返回信息
+
+| json结构体 | 类型      | 说明                                                         |
+| ---------- | --------- | ------------------------------------------------------------ |
+| Code       | int       | 200表示可用<br />100000表示输入参数错误<br />100004表示已被注册 |
+| Msg        | string    | 返回信息                                                     |
+| Data       | interface | 此处无用                                                     |
+
+
 
 #### ForgetPassword
 
@@ -69,9 +72,29 @@ POST：通过邮箱验证修改密码
 
 GET：获取该用户上传的所有文件的路径
 
+返回信息
+
+| json结构体 | 类型      | 说明                                      |
+| ---------- | --------- | ----------------------------------------- |
+| Code       | int       | 200表示可用<br />100006表示Cookie过期失效 |
+| Msg        | string    | 返回信息                                  |
+| Data       | interface | 此处无用                                  |
+
+
+
 #### GetUserMessage
 
 GET：获取用户信息 （无参数 通过 `cookie` 获取用户信息）
+
+返回信息
+
+| json结构体 | 类型      | 说明                                      |
+| ---------- | --------- | ----------------------------------------- |
+| Code       | int       | 200表示可用<br />100006表示Cookie过期失效 |
+| Msg        | string    | 返回信息                                  |
+| Data       | interface | 此处无用                                  |
+
+
 
 #### ModifyPassword
 
