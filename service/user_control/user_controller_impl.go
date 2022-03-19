@@ -53,7 +53,6 @@ func (uc *userControllerImpl) GetUserMessageByCookie(c *gin.Context) (user *mode
 	var account string
 	var err error
 	if account, Err = uc.GetAccountByCookie(c); Err.Code != consts.OperateSuccess {
-		// return nil, err
 		return nil, Err
 	}
 	if user, err = uc.getUserByAccount(account); err != nil {
@@ -202,7 +201,7 @@ func (uc *userControllerImpl) UploadAvatar(c *gin.Context) (Err model.Err) {
 func (uc *userControllerImpl) UploadPng(c *gin.Context, account string) (Err model.Err) {
 	var file *multipart.FileHeader
 	var err error
-	if file, err = c.FormFile("file"); err != nil {
+	if file, err = c.FormFile("png_name"); err != nil {
 		Err.Code = consts.SystemError
 		Err.Msg = utils.ErrWrapOrWithMessage(true, err).Error()
 		return Err

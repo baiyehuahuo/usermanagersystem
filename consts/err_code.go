@@ -10,7 +10,7 @@ const (
 	EmailIsRegistered       = 100004
 	UpdatePasswordFail      = 100005
 	CookieTimeOut           = 100006
-	SendAuthCodeByEmailFail = 100011
+	SendAuthCodeByEmailFail = 100007
 	SystemError             = 999998
 	DatabaseWrong           = 999999
 )

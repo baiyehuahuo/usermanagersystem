@@ -49,7 +49,7 @@ func (handle *handleManager) DeletePng(c *gin.Context) {
 		returnFail(c, err)
 		return
 	}
-	png := c.PostForm("delete_png")
+	png := c.PostForm("delete_png_name")
 	if png == "" {
 		log.Printf("DeletePng fail: png is nil.")
 		returnFail(c, model.Err{Code: consts.InputParamsWrong})
@@ -58,12 +58,12 @@ func (handle *handleManager) DeletePng(c *gin.Context) {
 
 	if Err := handle.um.DeletePng(c, account, png); Err.Code != consts.OperateSuccess {
 		log.Printf("DeletePng fail: %s \terr: %v.", account, err)
-		c.JSON(http.StatusInternalServerError, consts.DeleteFail)
+		returnFail(c, Err)
 		return
 	}
 
 	log.Printf("DeletePng success: %s.", account)
-	c.JSON(http.StatusOK, consts.DeleteSuccess)
+	returnSuccess(c)
 }
 
 // ForgetPassword 验证码修改密码
