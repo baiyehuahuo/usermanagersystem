@@ -231,21 +231,21 @@ func (handle *handleManager) UserRegister(c *gin.Context) {
 	returnSuccess(c)
 }
 
-// UploadFile 用户文件上传处理接口 todo
+// UploadFile 用户文件上传处理接口
 func (handle *handleManager) UploadPng(c *gin.Context) {
 	account, Err := handle.um.GetAccountByCookie(c)
 	if account == "" || Err.Code != consts.OperateSuccess {
 		log.Printf("UploadFile fail: user is not found.")
-		c.JSON(http.StatusInternalServerError, consts.UploadFail)
+		returnFail(c, Err)
 		return
 	}
-	if err := handle.um.UploadPng(c, account); err != nil {
-		log.Printf("UploadFile fail: %s \terr: %v.", account, err)
-		c.JSON(http.StatusInternalServerError, consts.UploadFail)
+	if Err := handle.um.UploadPng(c, account); Err.Code != consts.OperateSuccess {
+		log.Printf("UploadFile fail: %s \terr: %v.", account, Err)
+		returnFail(c, Err)
 		return
 	}
 	log.Printf("UploadFile success: %s.", account)
-	c.JSON(http.StatusOK, consts.UploadSuccess)
+	returnSuccess(c)
 }
 
 // UploadAvatar 用户头像上传处理接口

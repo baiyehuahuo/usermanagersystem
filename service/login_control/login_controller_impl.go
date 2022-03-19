@@ -34,7 +34,7 @@ func (loginController *loginControllerImpl) CheckEmailAvailable(c *gin.Context, 
 	user := model.User{Email: email}
 	if err := utils.GetDB().Where(&user).Take(&user).Error; err != gorm.ErrRecordNotFound {
 		Err.Code = consts.EmailIsRegistered
-		Err.Msg = utils.ErrWrapOrWithMessage(true, errors.New(consts.EmailUnavailable)).Error()
+		Err.Msg = utils.ErrWrapOrWithMessage(true, errors.New(consts.ErrCodeMessage[Err.Code])).Error()
 		return Err
 	}
 	Err.Code = consts.OperateSuccess

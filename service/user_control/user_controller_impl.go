@@ -187,23 +187,31 @@ func (uc *userControllerImpl) UploadAvatar(c *gin.Context) (Err model.Err) {
 }
 
 // UploadFile 上传文件
-func (uc *userControllerImpl) UploadPng(c *gin.Context, account string) (err error) {
+func (uc *userControllerImpl) UploadPng(c *gin.Context, account string) (Err model.Err) {
 	var file *multipart.FileHeader
+	var err error
 	if file, err = c.FormFile("file"); err != nil {
-		return utils.ErrWrapOrWithMessage(true, err)
+		Err.Code = consts.SystemError
+		Err.Msg = utils.ErrWrapOrWithMessage(true, err).Error()
+		return Err
 	}
 
 	var filePath string
 	if filePath, err = getUploadPngDirPath(account); err != nil {
-		return utils.ErrWrapOrWithMessage(false, err)
+		Err.Code = consts.SystemError
+		Err.Msg = utils.ErrWrapOrWithMessage(false, err).Error()
+		return Err
 	}
 	filePath = filepath.Join(filePath, file.Filename)
 
 	if err = c.SaveUploadedFile(file, filePath); err != nil {
-		return utils.ErrWrapOrWithMessage(true, err)
+		Err.Code = consts.SystemError
+		Err.Msg = utils.ErrWrapOrWithMessage(true, err).Error()
+		return Err
 	}
 
-	return nil
+	Err.Code = consts.OperateSuccess
+	return Err
 }
 
 // getAccount 通过cookie获取账户

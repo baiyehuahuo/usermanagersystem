@@ -14,7 +14,7 @@ type UserController interface {
 	GetUserFilesPath(c *gin.Context, account string) ([]string, model.Err)
 	GetUserMessageByCookie(c *gin.Context) (user *model.User, Err model.Err)
 	ModifyPassword(c *gin.Context, account string, oldPassword string, newPassword string) (Err model.Err)
-	UploadPng(c *gin.Context, account string) (err error)
+	UploadPng(c *gin.Context, account string) (Err model.Err)
 	UploadAvatar(c *gin.Context) (Err model.Err)
 	PredictPng(c *gin.Context, account string, pngName string) (predictPath string, err error)
 	DeletePng(c *gin.Context, account string, pngName string) (err error)
