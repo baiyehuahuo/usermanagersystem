@@ -30,8 +30,6 @@ const (
 	RedisUserMessagePrefix       = "UserMessage_"
 	RedisUserMessageContinueTime = 30
 
-	UpdatePasswordFail = "update password fail"
-
 	SystemLogPath   = "systemLogs"
 	LogFilePath     = SystemLogPath + "/log.txt"
 	MySQLBackUpPath = SystemLogPath + "/mysql_backup.sql"

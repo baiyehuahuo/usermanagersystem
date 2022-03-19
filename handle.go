@@ -41,7 +41,7 @@ func (handle *handleManager) CheckEmailAvailable(c *gin.Context) {
 	returnSuccess(c)
 }
 
-// DeletePng 验证码检测处理接口
+// DeletePng 验证码检测处理接口 todo
 func (handle *handleManager) DeletePng(c *gin.Context) {
 	account, err := handle.um.GetAccountByCookie(c)
 	if account == "" || err != nil {
@@ -73,7 +73,7 @@ func (handle *handleManager) ForgetPassword(c *gin.Context) {
 	newPassword := c.PostForm("new_password")
 	if email == "" || err != nil || newPassword == "" {
 		log.Printf("ForgetPassword fail: input error.")
-		c.JSON(http.StatusInternalServerError, consts.InputParamsError)
+		returnFail(c, model.Err{Code: consts.InputParamsWrong})
 		return
 	}
 	if err := handle.lm.CheckAuthCode(c, email, authCode); err.Code != consts.OperateSuccess {
@@ -81,15 +81,16 @@ func (handle *handleManager) ForgetPassword(c *gin.Context) {
 		returnFail(c, err)
 		return
 	}
-	if err = handle.um.SetPassword(c, email, newPassword); err != nil {
+	if err := handle.um.SetPassword(c, email, newPassword); err.Code != consts.OperateSuccess {
 		log.Printf("ForgetPassword fail: set password fail: %s \t %s\terr: %v.", email, newPassword, err)
-		c.JSON(http.StatusInternalServerError, consts.ForgetPasswordFail)
+		returnFail(c, err)
 		return
 	}
 	log.Printf("ForgetPassword success: %s.", email)
 	returnSuccess(c)
 }
 
+// todo
 func (handle *handleManager) GetUserFilesPath(c *gin.Context) {
 	account, err := handle.um.GetAccountByCookie(c)
 	if account == "" || err != nil {
@@ -107,6 +108,7 @@ func (handle *handleManager) GetUserFilesPath(c *gin.Context) {
 	c.JSON(http.StatusOK, result)
 }
 
+// todo
 // GetUserMessageByCookie 通过Cookie获取用户信息处理接口
 func (handle *handleManager) GetUserMessageByCookie(c *gin.Context) {
 	user, err := handle.um.GetUserMessageByCookie(c)
@@ -125,7 +127,7 @@ func (handle *handleManager) GetUserMessageByCookie(c *gin.Context) {
 	c.JSON(http.StatusOK, result)
 }
 
-// ModifyPassword 修改密码处理接口
+// ModifyPassword 修改密码处理接口 todo
 func (handle *handleManager) ModifyPassword(c *gin.Context) {
 	oldPassword := c.PostForm("oldPassword")
 	newPassword := c.PostForm("newPassword")
@@ -148,7 +150,7 @@ func (handle *handleManager) ModifyPassword(c *gin.Context) {
 	c.JSON(http.StatusOK, consts.ModifyPasswordSuccess)
 }
 
-// PredictPng 分割Png
+// PredictPng 分割Png todo
 func (handle *handleManager) PredictPng(c *gin.Context) {
 	predictPngName := c.Query("predict_png_name")
 	if predictPngName == "" {
@@ -174,7 +176,7 @@ func (handle *handleManager) PredictPng(c *gin.Context) {
 	c.JSON(http.StatusOK, predictPath)
 }
 
-// RestoreMySQL 恢复数据库
+// RestoreMySQL 恢复数据库 todo
 func (handle *handleManager) RestoreMySQL(c *gin.Context) {
 	utils.RestoreMySQL()
 }
@@ -220,7 +222,7 @@ func (handle *handleManager) UserRegister(c *gin.Context) {
 	returnSuccess(c)
 }
 
-// UploadFile 用户文件上传处理接口
+// UploadFile 用户文件上传处理接口 todo
 func (handle *handleManager) UploadPng(c *gin.Context) {
 	account, err := handle.um.GetAccountByCookie(c)
 	if account == "" || err != nil {
@@ -237,7 +239,7 @@ func (handle *handleManager) UploadPng(c *gin.Context) {
 	c.JSON(http.StatusOK, consts.UploadSuccess)
 }
 
-// UploadAvatar 用户头像上传处理接口
+// UploadAvatar 用户头像上传处理接口 todo
 func (handle *handleManager) UploadAvatar(c *gin.Context) {
 	user, err := handle.um.GetAccountByCookie(c)
 	if err != nil {
@@ -260,7 +262,7 @@ func (handle *handleManager) SendAuthCode(c *gin.Context) {
 	email := c.Query("email")
 	if !verifyEmailFormat(email) {
 		log.Printf("SendAuthCode fail: email is wrong.")
-		c.JSON(http.StatusInternalServerError, consts.InputParamsError)
+		returnFail(c, model.Err{Code: consts.InputParamsWrong})
 		return
 	}
 

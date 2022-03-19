@@ -7,7 +7,8 @@ const (
 	UserNotFound            = 100001
 	AccountOrPasswordWrong  = 100002
 	CheckAuthCodeFail       = 100003
-	EmailIsRegistered       = 10004
+	EmailIsRegistered       = 100004
+	UpdatePasswordFail      = 100005
 	SendAuthCodeByEmailFail = 100011
 	DatabaseWrong           = 999999
 )
@@ -20,6 +21,7 @@ var (
 		AccountOrPasswordWrong:  "账号或密码错误",
 		CheckAuthCodeFail:       "验证码错误",
 		EmailIsRegistered:       "邮箱已被注册",
+		UpdatePasswordFail:      "更新密码失败",
 		SendAuthCodeByEmailFail: "邮箱验证码发送失败",
 		DatabaseWrong:           "数据库错误",
 	}

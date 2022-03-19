@@ -66,7 +66,8 @@ func (uc *userControllerImpl) ModifyPassword(c *gin.Context, account, oldPasswor
 		Password: oldPasswordMD5,
 	}
 	if rows := uc.db.Where(&user).Updates(&model.User{Password: newPasswordMD5}).RowsAffected; rows == 0 {
-		return utils.ErrWrapOrWithMessage(true, errors.New(consts.UpdatePasswordFail))
+		// return utils.ErrWrapOrWithMessage(true, errors.New(consts.UpdatePasswordFail))
+		return errors.New("")
 	}
 
 	return nil
@@ -100,16 +101,18 @@ func (uc *userControllerImpl) DeletePng(c *gin.Context, account string, pngName 
 }
 
 // SetPassword 按照邮箱设置密码
-func (uc *userControllerImpl) SetPassword(c *gin.Context, email string, password string) error {
+func (uc *userControllerImpl) SetPassword(c *gin.Context, email string, password string) (Err model.Err) {
 	newPasswordMD5 := fmt.Sprintf("%x", md5.Sum([]byte(password)))
 	user := model.User{
 		Email: email,
 	}
 	if rows := uc.db.Where(&user).Updates(&model.User{Password: newPasswordMD5}).RowsAffected; rows == 0 {
-		return utils.ErrWrapOrWithMessage(true, errors.New(consts.UpdatePasswordFail))
+		Err.Code = consts.UpdatePasswordFail
+		Err.Msg = utils.ErrWrapOrWithMessage(true, errors.New(consts.ErrCodeMessage[Err.Code])).Error()
+		return Err
 	}
-
-	return nil
+	Err.Code = consts.OperateSuccess
+	return Err
 }
 
 // UploadAvatar 上传头像
