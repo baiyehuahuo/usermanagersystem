@@ -20,19 +20,25 @@ type loginControllerImpl struct {
 	rc utils.RedisController
 }
 
-func (loginController *loginControllerImpl) CheckAuthCode(c *gin.Context, email string, authCode int) (err error) {
+func (loginController *loginControllerImpl) CheckAuthCode(c *gin.Context, email string, authCode int) (Err model.Err) {
 	if !utils.GetEACC().CheckAuthCodeByEmail(email, authCode) {
-		return utils.ErrWrapOrWithMessage(true, errors.New(""))
+		Err.Code = consts.CheckAuthCodeFail
+		Err.Msg = utils.ErrWrapOrWithMessage(true, errors.New(consts.ErrCodeMessage[Err.Code])).Error()
+		return Err
 	}
-	return nil
+	Err.Code = consts.OperateSuccess
+	return Err
 }
 
-func (loginController *loginControllerImpl) CheckEmailAvailable(c *gin.Context, email string) (err error) {
+func (loginController *loginControllerImpl) CheckEmailAvailable(c *gin.Context, email string) (Err model.Err) {
 	user := model.User{Email: email}
 	if err := utils.GetDB().Where(&user).Take(&user).Error; err != gorm.ErrRecordNotFound {
-		return utils.ErrWrapOrWithMessage(true, errors.New(consts.EmailUnavailable))
+		Err.Code = consts.EmailIsRegistered
+		Err.Msg = utils.ErrWrapOrWithMessage(true, errors.New(consts.EmailUnavailable)).Error()
+		return Err
 	}
-	return nil
+	Err.Code = consts.OperateSuccess
+	return Err
 }
 
 func (loginController *loginControllerImpl) UserLogin(c *gin.Context, account string, password string) (Err model.Err) {
@@ -77,9 +83,7 @@ func (loginController *loginControllerImpl) UserRegister(c *gin.Context, account
 		NickName: nickName,
 	}
 	var err error
-	if err = loginController.CheckAuthCode(c, email, authCode); err != nil {
-		Err.Code = consts.CheckAuthCodeFail
-		Err.Msg = utils.ErrWrapOrWithMessage(false, err).Error()
+	if err := loginController.CheckAuthCode(c, email, authCode); err.Code != consts.OperateSuccess {
 		return Err
 	}
 	if err = utils.GetDB().Create(&user).Error; err != nil {

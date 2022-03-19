@@ -32,13 +32,13 @@ func (handle *handleManager) CheckEmailAvailable(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, consts.InputParamsError)
 		return
 	}
-	if err := handle.lm.CheckEmailAvailable(c, email); err != nil {
+	if err := handle.lm.CheckEmailAvailable(c, email); err.Code != consts.OperateSuccess {
 		log.Printf("CheckEmailAvailable fail: %s \terr: %v.", email, err)
-		c.JSON(http.StatusInternalServerError, consts.EmailUnavailable)
+		returnFail(c, err)
 		return
 	}
 	log.Printf("CheckEmailAvailable success: %s.", email)
-	c.JSON(http.StatusOK, consts.EmailAvailable)
+	returnSuccess(c)
 }
 
 // DeletePng 验证码检测处理接口
@@ -76,9 +76,9 @@ func (handle *handleManager) ForgetPassword(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, consts.InputParamsError)
 		return
 	}
-	if err = handle.lm.CheckAuthCode(c, email, authCode); err != nil {
+	if err := handle.lm.CheckAuthCode(c, email, authCode); err.Code != consts.OperateSuccess {
 		log.Printf("ForgetPassword fail: check auth code fail: %s \terr: %v.", email, err)
-		c.JSON(http.StatusInternalServerError, consts.CheckAuthCodeFail) // todo fix
+		returnFail(c, err)
 		return
 	}
 	if err = handle.um.SetPassword(c, email, newPassword); err != nil {
@@ -87,7 +87,7 @@ func (handle *handleManager) ForgetPassword(c *gin.Context) {
 		return
 	}
 	log.Printf("ForgetPassword success: %s.", email)
-	c.JSON(http.StatusOK, consts.ForgetPasswordSuccess)
+	returnSuccess(c)
 }
 
 func (handle *handleManager) GetUserFilesPath(c *gin.Context) {
@@ -350,5 +350,5 @@ func returnSuccess(c *gin.Context) {
 
 func returnFail(c *gin.Context, Err model.Err) {
 	Err.Msg = consts.ErrCodeMessage[Err.Code]
-	c.JSON(http.StatusInternalServerError, Err)
+	c.JSON(http.StatusOK, Err)
 }
