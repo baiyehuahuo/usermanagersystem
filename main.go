@@ -62,6 +62,7 @@ func main() {
 		lm: login_control.New(),
 		um: user_control.New(),
 	}
+
 	router.GET("/CheckEmailAvailable", handle.CheckEmailAvailable)
 	router.GET("/GetUserFilesPath", handle.GetUserFilesPath)
 	router.GET("/GetUserMessage", handle.GetUserMessageByCookie)
@@ -82,3 +83,7 @@ func main() {
 		log.Fatal(err)
 	}
 }
+
+// todo 添加一个删除文件的接口
+// todo rabbitmq与模型识别结合 减去加载模型的时间
+// todo 丰富错误信息处理
