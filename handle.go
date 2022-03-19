@@ -41,6 +41,31 @@ func (handle *handleManager) CheckEmailAvailable(c *gin.Context) {
 	c.JSON(http.StatusOK, consts.EmailAvailable)
 }
 
+// DeletePng 验证码检测处理接口
+func (handle *handleManager) DeletePng(c *gin.Context) {
+	account, err := handle.um.GetAccountByCookie(c)
+	if account == "" || err != nil {
+		log.Printf("DeletePng fail: user is not found.")
+		c.JSON(http.StatusInternalServerError, consts.DeleteFail)
+		return
+	}
+	png := c.PostForm("delete_png")
+	if png == "" {
+		log.Printf("DeletePng fail: png is nil.")
+		c.JSON(http.StatusBadRequest, consts.DeleteFail)
+		return
+	}
+
+	if err := handle.um.DeletePng(c, account, png); err != nil {
+		log.Printf("DeletePng fail: %s \terr: %v.", account, err)
+		c.JSON(http.StatusInternalServerError, consts.DeleteFail)
+		return
+	}
+
+	log.Printf("DeletePng success: %s.", account)
+	c.JSON(http.StatusOK, consts.DeleteSuccess)
+}
+
 // ForgetPassword 验证码修改密码
 func (handle *handleManager) ForgetPassword(c *gin.Context) {
 	email := c.PostForm("email")

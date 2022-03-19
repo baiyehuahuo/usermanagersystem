@@ -6,6 +6,9 @@ const (
 	LoginSuccess = "Login Success"
 	LoginFail    = "Login Fail"
 
+	DeleteSuccess = "Delete Success"
+	DeleteFail    = "Delete Fail"
+
 	RegeditSuccess = "Regedit Success"
 	RegeditFail    = "Regedit Fail"
 

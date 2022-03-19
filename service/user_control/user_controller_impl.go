@@ -87,6 +87,18 @@ func (uc *userControllerImpl) PredictPng(c *gin.Context, account string, pngName
 	return utils.GetNetUploadFilePath(account, pngName[:len(pngName)-len(path.Ext(pngName))]+"_predict.png"), nil
 }
 
+func (uc *userControllerImpl) DeletePng(c *gin.Context, account string, pngName string) (err error) {
+	var filePath string
+	if filePath, err = getUploadPngDirPath(account); err != nil {
+		return utils.ErrWrapOrWithMessage(false, err)
+	}
+	filePath = filepath.Join(filePath, pngName)
+	if err = os.Remove(filePath); err != nil {
+		return utils.ErrWrapOrWithMessage(true, err)
+	}
+	return nil
+}
+
 // SetPassword 按照邮箱设置密码
 func (uc *userControllerImpl) SetPassword(c *gin.Context, email string, password string) error {
 	newPasswordMD5 := fmt.Sprintf("%x", md5.Sum([]byte(password)))

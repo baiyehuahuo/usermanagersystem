@@ -76,6 +76,7 @@ func main() {
 	router.POST("/ForgetPassword", handle.ForgetPassword)
 	router.POST("/UploadAvatar", handle.UploadAvatar)
 	router.POST("/UploadPng", handle.UploadPng)
+	router.POST("/DeletePng", handle.DeletePng)
 	if err := os.MkdirAll(consts.DefaultAvatarPath, os.ModePerm); err != nil {
 		log.Fatal("目录创建失败 ", err)
 	}

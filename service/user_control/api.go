@@ -17,6 +17,7 @@ type UserController interface {
 	UploadPng(c *gin.Context, account string) (err error)
 	UploadAvatar(c *gin.Context) (err error)
 	PredictPng(c *gin.Context, account string, pngName string) (predictPath string, err error)
+	DeletePng(c *gin.Context, account string, pngName string) (err error)
 }
 
 func New() UserController {
