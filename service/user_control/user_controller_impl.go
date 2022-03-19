@@ -66,7 +66,7 @@ func (uc *userControllerImpl) GetUserMessageByCookie(c *gin.Context) (user *mode
 }
 
 // ModifyPassword 修改密码
-func (uc *userControllerImpl) ModifyPassword(c *gin.Context, account, oldPassword string, newPassword string) (err error) {
+func (uc *userControllerImpl) ModifyPassword(c *gin.Context, account, oldPassword string, newPassword string) (Err model.Err) {
 	oldPasswordMD5 := fmt.Sprintf("%x", md5.Sum([]byte(oldPassword)))
 	newPasswordMD5 := fmt.Sprintf("%x", md5.Sum([]byte(newPassword)))
 	user := model.User{
@@ -74,11 +74,13 @@ func (uc *userControllerImpl) ModifyPassword(c *gin.Context, account, oldPasswor
 		Password: oldPasswordMD5,
 	}
 	if rows := uc.db.Where(&user).Updates(&model.User{Password: newPasswordMD5}).RowsAffected; rows == 0 {
-		// return utils.ErrWrapOrWithMessage(true, errors.New(consts.UpdatePasswordFail))
-		return errors.New("")
+		Err.Code = consts.UpdatePasswordFail
+		Err.Msg = utils.ErrWrapOrWithMessage(true, errors.New(consts.ErrCodeMessage[Err.Code])).Error()
+		return Err
 	}
 
-	return nil
+	Err.Code = consts.OperateSuccess
+	return Err
 }
 
 // PredictPng 预测的图片

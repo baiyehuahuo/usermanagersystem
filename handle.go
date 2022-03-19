@@ -134,28 +134,28 @@ func (handle *handleManager) GetUserMessageByCookie(c *gin.Context) {
 	})
 }
 
-// ModifyPassword 修改密码处理接口 todo
+// ModifyPassword 修改密码处理接口
 func (handle *handleManager) ModifyPassword(c *gin.Context) {
 	oldPassword := c.PostForm("oldPassword")
 	newPassword := c.PostForm("newPassword")
 	if oldPassword == "" || newPassword == "" {
 		log.Printf("ModifyPassword fail: password is empty.")
-		c.JSON(http.StatusInternalServerError, consts.InputParamsError)
+		returnFail(c, model.Err{Code: consts.InputParamsWrong})
 		return
 	}
-	user, err := handle.um.GetAccountByCookie(c)
-	if err.Code != consts.OperateSuccess {
-		log.Printf("ModifyPassword fail: %s \terr: %v", user, err)
-		returnFail(c, err)
+	user, Err := handle.um.GetAccountByCookie(c)
+	if Err.Code != consts.OperateSuccess {
+		log.Printf("ModifyPassword fail: %s \terr: %v", user, Err)
+		returnFail(c, Err)
 		return
 	}
-	if err := handle.um.ModifyPassword(c, user, oldPassword, newPassword); err != nil {
-		log.Printf("ModifyPassword fail: %s \terr: %v.", user, err)
-		c.JSON(http.StatusInternalServerError, consts.ModifyPasswordFail)
+	if Err = handle.um.ModifyPassword(c, user, oldPassword, newPassword); Err.Code != consts.OperateSuccess {
+		log.Printf("ModifyPassword fail: %s \terr: %v.", user, Err)
+		returnFail(c, Err)
 		return
 	}
 	log.Printf("ModifyPassword success: %s", user)
-	c.JSON(http.StatusOK, consts.ModifyPasswordSuccess)
+	returnSuccess(c)
 }
 
 // PredictPng 分割Png todo
