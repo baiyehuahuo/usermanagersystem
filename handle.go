@@ -112,13 +112,12 @@ func (handle *handleManager) GetUserFilesPath(c *gin.Context) {
 	})
 }
 
-// todo
 // GetUserMessageByCookie 通过Cookie获取用户信息处理接口
 func (handle *handleManager) GetUserMessageByCookie(c *gin.Context) {
 	user, err := handle.um.GetUserMessageByCookie(c)
-	if err != nil {
+	if err.Code != consts.OperateSuccess {
 		log.Printf("GetUserMessage fail: %s \terr: %v.", user, err)
-		c.JSON(http.StatusInternalServerError, consts.GetUserMessageFail)
+		returnFail(c, err)
 		return
 	}
 	result := model.UserMessage{
@@ -128,7 +127,11 @@ func (handle *handleManager) GetUserMessageByCookie(c *gin.Context) {
 		AvatarPath: utils.GetNetAvatarPath(user.Account, user.AvatarExt),
 	}
 	log.Printf("GetUserMessage success: %s.", user)
-	c.JSON(http.StatusOK, result)
+	c.JSON(http.StatusOK, model.Err{
+		Code: consts.OperateSuccess,
+		Msg:  consts.ErrCodeMessage[consts.OperateSuccess],
+		Data: result,
+	})
 }
 
 // ModifyPassword 修改密码处理接口 todo
@@ -141,11 +144,12 @@ func (handle *handleManager) ModifyPassword(c *gin.Context) {
 		return
 	}
 	user, err := handle.um.GetAccountByCookie(c)
-	if err != nil {
+	if err.Code != consts.OperateSuccess {
 		log.Printf("ModifyPassword fail: %s \terr: %v", user, err)
-		c.JSON(http.StatusInternalServerError, consts.ModifyPasswordFail)
+		returnFail(c, err)
+		return
 	}
-	if err = handle.um.ModifyPassword(c, user, oldPassword, newPassword); err != nil {
+	if err := handle.um.ModifyPassword(c, user, oldPassword, newPassword); err != nil {
 		log.Printf("ModifyPassword fail: %s \terr: %v.", user, err)
 		c.JSON(http.StatusInternalServerError, consts.ModifyPasswordFail)
 		return
@@ -163,14 +167,15 @@ func (handle *handleManager) PredictPng(c *gin.Context) {
 		return
 	}
 
-	account, err := handle.um.GetAccountByCookie(c)
-	if account == "" || err != nil {
+	account, Err := handle.um.GetAccountByCookie(c)
+	if account == "" || Err.Code != consts.OperateSuccess {
 		log.Printf("Predict fail: user is not found.")
-		c.JSON(http.StatusInternalServerError, consts.PredictFail)
+		returnFail(c, Err)
 		return
 	}
 
 	var predictPath string
+	var err error
 	if predictPath, err = handle.um.PredictPng(c, account, predictPngName); err != nil {
 		log.Printf("Predict fail: %v", err)
 		c.JSON(http.StatusInternalServerError, consts.PredictFail)
@@ -228,8 +233,8 @@ func (handle *handleManager) UserRegister(c *gin.Context) {
 
 // UploadFile 用户文件上传处理接口 todo
 func (handle *handleManager) UploadPng(c *gin.Context) {
-	account, err := handle.um.GetAccountByCookie(c)
-	if account == "" || err != nil {
+	account, Err := handle.um.GetAccountByCookie(c)
+	if account == "" || Err.Code != consts.OperateSuccess {
 		log.Printf("UploadFile fail: user is not found.")
 		c.JSON(http.StatusInternalServerError, consts.UploadFail)
 		return
@@ -243,22 +248,21 @@ func (handle *handleManager) UploadPng(c *gin.Context) {
 	c.JSON(http.StatusOK, consts.UploadSuccess)
 }
 
-// UploadAvatar 用户头像上传处理接口 todo
+// UploadAvatar 用户头像上传处理接口
 func (handle *handleManager) UploadAvatar(c *gin.Context) {
-	user, err := handle.um.GetAccountByCookie(c)
-	if err != nil {
+	user, Err := handle.um.GetAccountByCookie(c)
+	if Err.Code != consts.OperateSuccess {
 		log.Printf("UploadAvatar fail: user is not found.")
-		c.JSON(http.StatusInternalServerError, consts.UploadFail)
+		returnFail(c, Err)
 		return
 	}
-	if err := handle.um.UploadAvatar(c); err != nil {
-		log.Printf("UploadAvatar fail: %s \terr: %v.", user, err)
-		c.JSON(http.StatusInternalServerError, consts.UploadFail)
+	if Err = handle.um.UploadAvatar(c); Err.Code != consts.OperateSuccess {
+		log.Printf("UploadAvatar fail: %s \terr: %v.", user, Err)
+		returnFail(c, Err)
 		return
 	}
 	log.Printf("UploadAvatar success: %s.", user)
-
-	c.JSON(http.StatusOK, consts.UploadSuccess)
+	returnSuccess(c)
 }
 
 // SendAuthCode 发送验证码处理接口

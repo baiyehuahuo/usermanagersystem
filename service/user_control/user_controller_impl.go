@@ -26,20 +26,26 @@ type userControllerImpl struct {
 }
 
 // GetUserFilesPath 获取该用户的所有png文件
-func (uc *userControllerImpl) GetUserFilesPath(c *gin.Context, account string) (result []string, err error) {
+func (uc *userControllerImpl) GetUserFilesPath(c *gin.Context, account string) (result []string, Err model.Err) {
 	var filesDirPath string
+	var err error
 	if filesDirPath, err = getUploadPngDirPath(account); err != nil {
-		return nil, utils.ErrWrapOrWithMessage(false, err)
+		Err.Code = consts.SystemError
+		Err.Msg = utils.ErrWrapOrWithMessage(false, err).Error()
+		return nil, Err
 	}
 	var fileListInfo []os.FileInfo
 	if fileListInfo, err = ioutil.ReadDir(filesDirPath); err != nil {
-		return nil, utils.ErrWrapOrWithMessage(true, err)
+		Err.Code = consts.SystemError
+		Err.Msg = utils.ErrWrapOrWithMessage(true, err).Error()
+		return nil, Err
 	}
 	result = make([]string, 0, len(fileListInfo))
 	for i := range fileListInfo {
 		result = append(result, utils.GetNetUploadFilePath(account, fileListInfo[i].Name()))
 	}
-	return result, nil
+	Err.Code = consts.OperateSuccess
+	return result, Err
 }
 
 // GetUserMessageByCookie 通过Cookie获取用户信息
