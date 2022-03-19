@@ -52,11 +52,11 @@ func (handle *handleManager) DeletePng(c *gin.Context) {
 	png := c.PostForm("delete_png")
 	if png == "" {
 		log.Printf("DeletePng fail: png is nil.")
-		c.JSON(http.StatusBadRequest, consts.DeleteFail)
+		returnFail(c, model.Err{Code: consts.InputParamsWrong})
 		return
 	}
 
-	if err := handle.um.DeletePng(c, account, png); err != nil {
+	if Err := handle.um.DeletePng(c, account, png); Err.Code != consts.OperateSuccess {
 		log.Printf("DeletePng fail: %s \terr: %v.", account, err)
 		c.JSON(http.StatusInternalServerError, consts.DeleteFail)
 		return
