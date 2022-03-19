@@ -22,7 +22,7 @@ type loginControllerImpl struct {
 
 func (loginController *loginControllerImpl) CheckAuthCode(c *gin.Context, email string, authCode int) (err error) {
 	if !utils.GetEACC().CheckAuthCodeByEmail(email, authCode) {
-		return utils.ErrWrapOrWithMessage(true, errors.New(consts.CheckAuthCodeFail))
+		return utils.ErrWrapOrWithMessage(true, errors.New(""))
 	}
 	return nil
 }
@@ -35,13 +35,17 @@ func (loginController *loginControllerImpl) CheckEmailAvailable(c *gin.Context, 
 	return nil
 }
 
-func (loginController *loginControllerImpl) UserLogin(c *gin.Context, account string, password string) (err error) {
+func (loginController *loginControllerImpl) UserLogin(c *gin.Context, account string, password string) (Err model.Err) {
+	var err error
 	user := model.User{
 		Account:  account,
 		Password: fmt.Sprintf("%x", md5.Sum([]byte(password))),
 	}
 	if err = utils.GetDB().Where(&user).Take(&user).Error; err == gorm.ErrRecordNotFound {
-		return utils.ErrWrapOrWithMessage(true, err)
+		return model.Err{
+			Code: consts.AccountOrPasswordWrong,
+			Msg:  utils.ErrWrapOrWithMessage(true, err).Error(),
+		}
 	}
 
 	c.SetSameSite(http.SameSiteLaxMode)
@@ -50,37 +54,50 @@ func (loginController *loginControllerImpl) UserLogin(c *gin.Context, account st
 		consts.CookieValidationDomainIP, false, true)
 	c.SetCookie(consts.CookieNameOfUser, cookie, consts.CookieContinueTime, consts.CookieValidationRange,
 		consts.CookieValidationDomainLocal, false, true)
-	if err = loginController.rc.Set(consts.RedisCookieHashPrefix+cookie, user.Account,
-		consts.CookieContinueTime); err != nil {
-		return utils.ErrWrapOrWithMessage(false, err)
+	if err = loginController.rc.Set(consts.RedisCookieHashPrefix+cookie, user.Account, consts.CookieContinueTime); err != nil {
+		return model.Err{
+			Code: consts.DatabaseWrong,
+			Msg:  utils.ErrWrapOrWithMessage(false, err).Error(),
+		}
 	}
 
-	if err = loginController.rc.SetUser(user); err != nil { // 保存到 redis 缓存中 失败也不必停止
+	if err := loginController.rc.SetUser(user); err != nil { // 保存到 redis 缓存中 失败也不必停止
 		log.Printf("user %s save into redis fail: %v", user.Account, err)
 	}
 
-	return nil
+	Err.Code = consts.OperateSuccess
+	return Err
 }
 
-func (loginController *loginControllerImpl) UserRegister(c *gin.Context, account string, password string, email string, authCode int, nickName string) (err error) {
+func (loginController *loginControllerImpl) UserRegister(c *gin.Context, account string, password string, email string, authCode int, nickName string) (Err model.Err) {
 	user := model.User{
 		Account:  account,
 		Password: fmt.Sprintf("%x", md5.Sum([]byte(password))),
 		Email:    email,
 		NickName: nickName,
 	}
+	var err error
 	if err = loginController.CheckAuthCode(c, email, authCode); err != nil {
-		return utils.ErrWrapOrWithMessage(false, err)
+		Err.Code = consts.CheckAuthCodeFail
+		Err.Msg = utils.ErrWrapOrWithMessage(false, err).Error()
+		return Err
 	}
 	if err = utils.GetDB().Create(&user).Error; err != nil {
-		return utils.ErrWrapOrWithMessage(true, err)
+		Err.Code = consts.DatabaseWrong
+		Err.Msg = utils.ErrWrapOrWithMessage(true, err).Error()
+		return Err
 	}
-	return nil
+	Err.Code = consts.OperateSuccess
+	return Err
 }
 
-func (loginController *loginControllerImpl) SendAuthCode(c *gin.Context, email string) (err error) {
+func (loginController *loginControllerImpl) SendAuthCode(c *gin.Context, email string) (Err model.Err) {
+	var err error
 	if err = utils.GetEACC().SendAuthCodeByEmail(email); err != nil {
-		return utils.ErrWrapOrWithMessage(false, err)
+		Err.Code = consts.SendAuthCodeByEmailFail
+		Err.Msg = utils.ErrWrapOrWithMessage(false, err).Error()
+		return Err
 	}
-	return nil
+	Err.Code = consts.OperateSuccess
+	return Err
 }

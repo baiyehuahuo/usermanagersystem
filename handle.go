@@ -78,7 +78,7 @@ func (handle *handleManager) ForgetPassword(c *gin.Context) {
 	}
 	if err = handle.lm.CheckAuthCode(c, email, authCode); err != nil {
 		log.Printf("ForgetPassword fail: check auth code fail: %s \terr: %v.", email, err)
-		c.JSON(http.StatusInternalServerError, consts.CheckAuthCodeFail)
+		c.JSON(http.StatusInternalServerError, consts.CheckAuthCodeFail) // todo fix
 		return
 	}
 	if err = handle.um.SetPassword(c, email, newPassword); err != nil {
@@ -185,17 +185,17 @@ func (handle *handleManager) UserLogin(c *gin.Context) {
 	password := c.Query("password")
 	if account == "" || password == "" {
 		log.Printf("UserLogin fail: account or password is empty.")
-		c.JSON(http.StatusInternalServerError, consts.InputParamsError)
+		returnFail(c, model.Err{Code: consts.InputParamsWrong})
 		return
 	}
 
-	if err := handle.lm.UserLogin(c, account, password); err != nil {
+	if err := handle.lm.UserLogin(c, account, password); err.Code != consts.OperateSuccess {
 		log.Printf("UserLogin fail: %s \terr: %v.", account, err)
-		c.JSON(http.StatusInternalServerError, consts.LoginFail)
+		returnFail(c, err)
 		return
 	}
 	log.Printf("UserLogin success: %s", account)
-	c.JSON(http.StatusOK, consts.LoginSuccess)
+	returnSuccess(c)
 }
 
 // UserRegister 用户注册处理接口
@@ -207,17 +207,17 @@ func (handle *handleManager) UserRegister(c *gin.Context) {
 	authCode, err := strconv.Atoi(c.Query("auth_code"))
 	if account == "" || password == "" || !verifyEmailFormat(email) || err != nil || nickName == "" {
 		log.Printf("UserRegister fail: params has wrong.")
-		c.JSON(http.StatusInternalServerError, consts.InputParamsError)
+		returnFail(c, model.Err{Code: consts.InputParamsWrong})
 		return
 	}
 
-	if err := handle.lm.UserRegister(c, account, password, email, authCode, nickName); err != nil {
+	if err := handle.lm.UserRegister(c, account, password, email, authCode, nickName); err.Code != consts.OperateSuccess {
 		log.Printf("UserRegister fail: %s \terr: %v.", account, err)
-		c.JSON(http.StatusInternalServerError, consts.RegeditFail)
+		returnFail(c, err)
 		return
 	}
 	log.Printf("UserRegister success: %s", account)
-	c.JSON(http.StatusOK, consts.RegeditSuccess)
+	returnSuccess(c)
 }
 
 // UploadFile 用户文件上传处理接口
@@ -264,13 +264,13 @@ func (handle *handleManager) SendAuthCode(c *gin.Context) {
 		return
 	}
 
-	if err := handle.lm.SendAuthCode(c, email); err != nil {
+	if err := handle.lm.SendAuthCode(c, email); err.Code != consts.OperateSuccess {
 		log.Printf("SendAuthCode fail: %s \terr: %v", email, err)
-		c.JSON(http.StatusInternalServerError, consts.SendAuthCodeFail)
+		returnFail(c, err)
 		return
 	}
 	log.Printf("SendAuthCode success: %s", email)
-	c.JSON(http.StatusOK, consts.SendAuthCodeSuccess)
+	returnSuccess(c)
 }
 
 // UploadFilePathCreate 创建文件上传路径
@@ -339,4 +339,16 @@ func verifyEmailFormat(email string) bool {
 	pattern := `\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*` // 匹配电子邮箱
 	reg := regexp.MustCompile(pattern)
 	return reg.MatchString(email)
+}
+
+func returnSuccess(c *gin.Context) {
+	c.JSON(http.StatusOK, model.Err{
+		Code: consts.OperateSuccess,
+		Msg:  consts.ErrCodeMessage[consts.OperateSuccess],
+	})
+}
+
+func returnFail(c *gin.Context, Err model.Err) {
+	Err.Msg = consts.ErrCodeMessage[Err.Code]
+	c.JSON(http.StatusInternalServerError, Err)
 }

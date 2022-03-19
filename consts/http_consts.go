@@ -24,7 +24,7 @@ const (
 	SendAuthCodeFail    = "Send Auth Code Fail"
 
 	CheckAuthCodeSuccess = "Auth Success"
-	CheckAuthCodeFail    = "Auth Fail"
+	// CheckAuthCodeFail    = "Auth Fail"
 
 	EmailAvailable   = "Email Available"
 	EmailUnavailable = "Email Unavailable"
