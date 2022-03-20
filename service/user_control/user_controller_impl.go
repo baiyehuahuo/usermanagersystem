@@ -178,7 +178,6 @@ func (uc *userControllerImpl) UploadAvatar(c *gin.Context) (Err model.Err) {
 	}
 
 	// todo 如果保存文件失败 那数据库里的数据怎么办？
-	// fmt.Println(filePath)
 	if err = c.SaveUploadedFile(file, filePath); err != nil {
 		Err.Code = consts.SystemError
 		Err.Msg = utils.ErrWrapOrWithMessage(true, err).Error()
@@ -190,9 +189,6 @@ func (uc *userControllerImpl) UploadAvatar(c *gin.Context) (Err model.Err) {
 		Err.Msg = utils.ErrWrapOrWithMessage(false, err).Error()
 		return Err
 	}
-	// if err = chmodFile(filePath, 0444); err != nil {
-	// 	return errors.WithMessage(err, utils.RunFuncNameWithFail())
-	// }
 	Err.Code = consts.OperateSuccess
 	return Err
 }
@@ -227,12 +223,16 @@ func (uc *userControllerImpl) UploadPng(c *gin.Context, account string) (Err mod
 
 // getAccount 通过cookie获取账户
 func (uc *userControllerImpl) GetAccountByCookie(c *gin.Context) (account string, Err model.Err) {
-	if cookie, err := c.Cookie(consts.CookieNameOfUser); err == nil {
-		account, _ = uc.rc.Get(consts.RedisCookieHashPrefix + cookie)
-	}
+	cookie, _ := c.Cookie(consts.CookieNameOfUser)
+	account, err := uc.rc.Get(consts.RedisCookieHashPrefix + cookie)
 	if account == "" {
 		Err.Code = consts.CookieTimeOut
 		Err.Msg = utils.ErrWrapOrWithMessage(true, errors.New(consts.ErrCodeMessage[Err.Code])).Error()
+		return "", Err
+	}
+	if err != nil {
+		Err.Code = consts.DatabaseWrong
+		Err.Msg = utils.ErrWrapOrWithMessage(true, err).Error()
 		return "", Err
 	}
 	Err.Code = consts.OperateSuccess
