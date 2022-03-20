@@ -274,7 +274,7 @@ func getUploadPngDirPath(userName string) (filePath string, err error) {
 func requestPredictByRabbitMQ(predictPath string) (err error) {
 	ch := utils.RabbitCh
 	var queue amqp.Queue
-	if queue, err = ch.QueueDeclare(consts.PredictQueueName, false, true, false, false, amqp.Table{"x-max-length": 10}); err != nil {
+	if queue, err = ch.QueueDeclare(consts.PredictQueueName, false, consts.AutoDelete, false, false, amqp.Table{"x-max-length": consts.MaxQueueLength}); err != nil {
 		return err
 	}
 	if err = ch.Publish("", queue.Name, false, false, amqp.Publishing{ContentType: "text/plain", Body: []byte(predictPath)}); err != nil {
@@ -285,11 +285,11 @@ func requestPredictByRabbitMQ(predictPath string) (err error) {
 
 func waitPredictByRabbitMQ(predictPath string) (err error) {
 	ch := utils.RabbitCh
-	if err = ch.ExchangeDeclare(consts.ExchangeName, consts.RouteType, true, true, false, false, nil); err != nil {
+	if err = ch.ExchangeDeclare(consts.ExchangeName, consts.RouteType, true, consts.AutoDelete, false, false, nil); err != nil {
 		return utils.ErrWrapOrWithMessage(true, err)
 	}
 	var queue amqp.Queue
-	if queue, err = ch.QueueDeclare(predictPath, false, true, true, false, nil); err != nil {
+	if queue, err = ch.QueueDeclare(predictPath, false, consts.AutoDelete, true, false, amqp.Table{"x-max-length": 1}); err != nil {
 		return utils.ErrWrapOrWithMessage(true, err)
 	}
 	if err = ch.QueueBind(queue.Name, "", consts.ExchangeName, false, nil); err != nil {

@@ -11,6 +11,13 @@ redisconfig:
   password: redisPassword
   dbnum: 0
 
+rabbitmqconfig:
+  host: 127.0.0.1
+  port: 5672
+  account: guest
+  password: guest
+#  auto_delete: true
+
 emailconfig:
   email: 15343014813@163.com
   addr: smtp.163.com:25

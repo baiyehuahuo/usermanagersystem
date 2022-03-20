@@ -34,4 +34,6 @@ const (
 	PredictQueueName = "PredictQueue"
 	ExchangeName     = "ResultExchange"
 	RouteType        = "fanout"
+	AutoDelete       = true
+	MaxQueueLength   = 10
 )

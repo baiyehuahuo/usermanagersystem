@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"fmt"
 	"io/ioutil"
 	"os"
 	"usermanagersystem/model"
@@ -24,5 +25,6 @@ func ConfigRead() (err error) {
 	if err != nil {
 		return ErrWrapOrWithMessage(true, err)
 	}
+	fmt.Println(Config)
 	return nil
 }
