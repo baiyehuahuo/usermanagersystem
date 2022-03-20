@@ -299,9 +299,9 @@ func waitPredictByRabbitMQ(predictPath string) (err error) {
 	if msgs, err = ch.Consume(queue.Name, "", true, false, true, false, nil); err != nil {
 		return utils.ErrWrapOrWithMessage(true, err)
 	}
-	fmt.Printf("%s is waiting\n", predictPath)
+	// fmt.Printf("%s is waiting\n", predictPath)
 	for msg := range msgs {
-		fmt.Printf("%s goroutine get message: %s\n", predictPath, string(msg.Body))
+		// fmt.Printf("%s goroutine get message: %s\n", predictPath, string(msg.Body))
 		if string(msg.Body) == predictPath {
 			break
 		}

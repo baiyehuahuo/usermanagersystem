@@ -4,6 +4,7 @@ import (
 	"log"
 	"mime"
 	"os"
+	"time"
 	"usermanagersystem/consts"
 	"usermanagersystem/service/html_control"
 	"usermanagersystem/service/login_control"
@@ -40,6 +41,8 @@ func init() {
 		log.Fatal(err)
 	}
 
+	go utils.StartModel()
+
 	if err = utils.NewCache(consts.AuthCodeContinueTime, consts.AuthCodeCacheFlushTime); err != nil {
 		log.Fatal(err)
 	}
@@ -49,6 +52,7 @@ func init() {
 	}
 
 	utils.EmailAuthCodeControllerCreate()
+	time.Sleep(time.Second * 15)
 }
 
 func main() {
