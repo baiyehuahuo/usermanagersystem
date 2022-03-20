@@ -36,6 +36,10 @@ func init() {
 		log.Fatal(err)
 	}
 
+	if err = utils.ConnectToRabbitMQ(); err != nil {
+		log.Fatal(err)
+	}
+
 	if err = utils.NewCache(consts.AuthCodeContinueTime, consts.AuthCodeCacheFlushTime); err != nil {
 		log.Fatal(err)
 	}

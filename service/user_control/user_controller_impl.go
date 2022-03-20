@@ -7,7 +7,6 @@ import (
 	"log"
 	"mime/multipart"
 	"os"
-	"os/exec"
 	"path"
 	"path/filepath"
 	"usermanagersystem/consts"
@@ -15,6 +14,7 @@ import (
 	"usermanagersystem/utils"
 
 	"github.com/pkg/errors"
+	"github.com/streadway/amqp"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -92,10 +92,17 @@ func (uc *userControllerImpl) PredictPng(c *gin.Context, account string, pngName
 		return "", Err
 	}
 	filePath = filepath.Join(filePath, pngName)
-	cmd := exec.Command("main.exe", filePath)
-	if err := cmd.Run(); err != nil {
-		Err.Code = consts.SystemError
-		Err.Msg = utils.ErrWrapOrWithMessage(true, err).Error()
+	// cmd := exec.Command("main.exe", filePath)
+	// if err := cmd.Run(); err != nil {
+	// 	Err.Code = consts.SystemError
+	// 	Err.Msg = utils.ErrWrapOrWithMessage(true, err).Error()
+	// 	return "", Err
+	// }
+	if err = requestPredictByRabbitMQ(filePath); err != nil {
+	}
+	if err = waitPredictByRabbitMQ(filePath); err != nil {
+		Err.Code = consts.DatabaseWrong
+		Err.Msg = utils.ErrWrapOrWithMessage(false, err).Error()
 		return "", Err
 	}
 
@@ -262,4 +269,42 @@ func getUploadPngDirPath(userName string) (filePath string, err error) {
 		return "", utils.ErrWrapOrWithMessage(true, err)
 	}
 	return filePath, nil
+}
+
+func requestPredictByRabbitMQ(predictPath string) (err error) {
+	ch := utils.RabbitCh
+	var queue amqp.Queue
+	if queue, err = ch.QueueDeclare(consts.PredictQueueName, false, true, false, false, amqp.Table{"x-max-length": 10}); err != nil {
+		return err
+	}
+	if err = ch.Publish("", queue.Name, false, false, amqp.Publishing{ContentType: "text/plain", Body: []byte(predictPath)}); err != nil {
+		return err
+	}
+	return nil
+}
+
+func waitPredictByRabbitMQ(predictPath string) (err error) {
+	ch := utils.RabbitCh
+	if err = ch.ExchangeDeclare(consts.ExchangeName, consts.RouteType, true, true, false, false, nil); err != nil {
+		return utils.ErrWrapOrWithMessage(true, err)
+	}
+	var queue amqp.Queue
+	if queue, err = ch.QueueDeclare(predictPath, false, true, true, false, nil); err != nil {
+		return utils.ErrWrapOrWithMessage(true, err)
+	}
+	if err = ch.QueueBind(queue.Name, "", consts.ExchangeName, false, nil); err != nil {
+		return utils.ErrWrapOrWithMessage(true, err)
+	}
+	var msgs <-chan amqp.Delivery
+	if msgs, err = ch.Consume(queue.Name, "", true, false, true, false, nil); err != nil {
+		return utils.ErrWrapOrWithMessage(true, err)
+	}
+	fmt.Printf("%s is waiting\n", predictPath)
+	for msg := range msgs {
+		fmt.Printf("%s goroutine get message: %s\n", predictPath, string(msg.Body))
+		if string(msg.Body) == predictPath {
+			break
+		}
+	}
+	return nil
 }

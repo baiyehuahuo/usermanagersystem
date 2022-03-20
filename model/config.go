@@ -1,9 +1,10 @@
 package model
 
 type ConfigModel struct {
-	MysqlConfig mysqlConfig `yaml: "mysqlconfig"`
-	RedisConfig redisConfig `yaml: "redisconfig"`
-	EmailConfig emailConfig `yaml: "emailconfig"`
+	MysqlConfig    mysqlConfig `yaml: "mysqlconfig"`
+	RedisConfig    redisConfig `yaml: "redisconfig"`
+	RabbitMQConfig rabbitMQConfig
+	EmailConfig    emailConfig `yaml: "emailconfig"`
 }
 
 type mysqlConfig struct {
@@ -19,6 +20,10 @@ type redisConfig struct {
 	Port     int    `yaml: "port"`
 	Password string `yaml: "password"`
 	DbNum    int    `yaml: "dbnum"`
+}
+
+type rabbitMQConfig struct {
+	// Conn *amqp.Connection
 }
 
 type emailConfig struct {

@@ -20,10 +20,6 @@ const (
 	CookieValidationRange       = "/"
 	CookieValidationDomainIP    = "127.0.0.1"
 	CookieValidationDomainLocal = "localhost"
-	CookieTimeOutError          = "cookie is timeout"
-
-	PredictSuccess = "PredictPng success"
-	PredictFail    = "PredictPng fail"
 
 	RedisCookieHashPrefix        = "UserCookie_"
 	RedisAuthCodePrefix          = "AuthCode_" // 假如保存在redis的前缀名
@@ -33,4 +29,9 @@ const (
 	SystemLogPath   = "systemLogs"
 	LogFilePath     = SystemLogPath + "/log.txt"
 	MySQLBackUpPath = SystemLogPath + "/mysql_backup.sql"
+
+	RabbitMQURL      = "amqp://guest:guest@localhost:5672/"
+	PredictQueueName = "PredictQueue"
+	ExchangeName     = "ResultExchange"
+	RouteType        = "fanout"
 )
