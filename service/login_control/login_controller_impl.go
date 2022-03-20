@@ -67,7 +67,7 @@ func (loginController *loginControllerImpl) UserLogin(c *gin.Context, account st
 		}
 	}
 
-	if err := loginController.rc.SetUser(user); err != nil { // 保存到 redis 缓存中 失败也不必停止
+	if err = loginController.rc.SetUser(user); err != nil { // 保存到 redis 缓存中 失败也不必停止
 		log.Printf("user %s save into redis fail: %v", user.Account, err)
 	}
 
@@ -82,11 +82,10 @@ func (loginController *loginControllerImpl) UserRegister(c *gin.Context, account
 		Email:    email,
 		NickName: nickName,
 	}
-	var err error
-	if err := loginController.CheckAuthCode(c, email, authCode); err.Code != consts.OperateSuccess {
+	if Err = loginController.CheckAuthCode(c, email, authCode); Err.Code != consts.OperateSuccess {
 		return Err
 	}
-	if err = utils.GetDB().Create(&user).Error; err != nil {
+	if err := utils.GetDB().Create(&user).Error; err != nil {
 		Err.Code = consts.DatabaseWrong
 		Err.Msg = utils.ErrWrapOrWithMessage(true, err).Error()
 		return Err
