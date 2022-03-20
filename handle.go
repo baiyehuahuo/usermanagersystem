@@ -6,6 +6,7 @@ import (
 	"os"
 	"regexp"
 	"strconv"
+	"strings"
 	"usermanagersystem/consts"
 	"usermanagersystem/model"
 	"usermanagersystem/service/login_control"
@@ -32,9 +33,9 @@ func (handle *handleManager) CheckEmailAvailable(c *gin.Context) {
 		returnFail(c, model.Err{Code: consts.InputParamsWrong})
 		return
 	}
-	if err := handle.lm.CheckEmailAvailable(c, email); err.Code != consts.OperateSuccess {
-		log.Printf("CheckEmailAvailable fail: %s \terr: %v.", email, err)
-		returnFail(c, err)
+	if Err := handle.lm.CheckEmailAvailable(c, email); Err.Code != consts.OperateSuccess {
+		log.Printf("CheckEmailAvailable fail: %s \terr: %v.", email, Err.Msg)
+		returnFail(c, Err)
 		return
 	}
 	log.Printf("CheckEmailAvailable success: %s.", email)
@@ -43,10 +44,10 @@ func (handle *handleManager) CheckEmailAvailable(c *gin.Context) {
 
 // DeletePng 验证码检测处理接口
 func (handle *handleManager) DeletePng(c *gin.Context) {
-	account, err := handle.um.GetAccountByCookie(c)
-	if account == "" || err.Code != consts.OperateSuccess {
-		log.Printf("DeletePng fail: user is not found.")
-		returnFail(c, err)
+	account, Err := handle.um.GetAccountByCookie(c)
+	if account == "" || Err.Code != consts.OperateSuccess {
+		log.Printf("DeletePng fail: user is not found. %v", Err.Msg)
+		returnFail(c, Err)
 		return
 	}
 	png := c.PostForm("delete_png_name")
@@ -57,7 +58,7 @@ func (handle *handleManager) DeletePng(c *gin.Context) {
 	}
 
 	if Err := handle.um.DeletePng(c, account, png); Err.Code != consts.OperateSuccess {
-		log.Printf("DeletePng fail: %s \terr: %v.", account, err)
+		log.Printf("DeletePng fail: %s \terr: %v.", account, Err.Msg)
 		returnFail(c, Err)
 		return
 	}
@@ -76,14 +77,14 @@ func (handle *handleManager) ForgetPassword(c *gin.Context) {
 		returnFail(c, model.Err{Code: consts.InputParamsWrong})
 		return
 	}
-	if err := handle.lm.CheckAuthCode(c, email, authCode); err.Code != consts.OperateSuccess {
-		log.Printf("ForgetPassword fail: check auth code fail: %s \terr: %v.", email, err)
-		returnFail(c, err)
+	if Err := handle.lm.CheckAuthCode(c, email, authCode); Err.Code != consts.OperateSuccess {
+		log.Printf("ForgetPassword fail: check auth code fail: %s \terr: %v.", email, Err.Msg)
+		returnFail(c, Err)
 		return
 	}
-	if err := handle.um.SetPassword(c, email, newPassword); err.Code != consts.OperateSuccess {
-		log.Printf("ForgetPassword fail: set password fail: %s \t %s\terr: %v.", email, newPassword, err)
-		returnFail(c, err)
+	if Err := handle.um.SetPassword(c, email, newPassword); Err.Code != consts.OperateSuccess {
+		log.Printf("ForgetPassword fail: set password fail: %s \t %s\terr: %v.", email, newPassword, Err.Msg)
+		returnFail(c, Err)
 		return
 	}
 	log.Printf("ForgetPassword success: %s.", email)
@@ -91,16 +92,16 @@ func (handle *handleManager) ForgetPassword(c *gin.Context) {
 }
 
 func (handle *handleManager) GetUserFilesPath(c *gin.Context) {
-	account, err := handle.um.GetAccountByCookie(c)
-	if account == "" || err.Code != consts.OperateSuccess {
-		log.Printf("GetUserFilesPath fail: user is not found.")
-		returnFail(c, err)
+	account, Err := handle.um.GetAccountByCookie(c)
+	if account == "" || Err.Code != consts.OperateSuccess {
+		log.Printf("GetUserFilesPath fail: user is not found. %v", Err.Msg)
+		returnFail(c, Err)
 		return
 	}
 	var result []string
-	if result, err = handle.um.GetUserFilesPath(c, account); err.Code != consts.OperateSuccess {
-		log.Printf("GetUserFilesPath fail: %s \terr: %v.", account, err)
-		returnFail(c, err)
+	if result, Err = handle.um.GetUserFilesPath(c, account); Err.Code != consts.OperateSuccess {
+		log.Printf("GetUserFilesPath fail: %s \terr: %v.", account, Err.Msg)
+		returnFail(c, Err)
 		return
 	}
 	log.Printf("GetUserFilesPath success: %s.", account)
@@ -114,10 +115,10 @@ func (handle *handleManager) GetUserFilesPath(c *gin.Context) {
 
 // GetUserMessageByCookie 通过Cookie获取用户信息处理接口
 func (handle *handleManager) GetUserMessageByCookie(c *gin.Context) {
-	user, err := handle.um.GetUserMessageByCookie(c)
-	if err.Code != consts.OperateSuccess {
-		log.Printf("GetUserMessage fail: %s \terr: %v.", user, err)
-		returnFail(c, err)
+	user, Err := handle.um.GetUserMessageByCookie(c)
+	if Err.Code != consts.OperateSuccess {
+		log.Printf("GetUserMessage fail: %s \terr: %v.", user, Err.Msg)
+		returnFail(c, Err)
 		return
 	}
 	result := model.UserMessage{
@@ -175,9 +176,8 @@ func (handle *handleManager) PredictPng(c *gin.Context) {
 	}
 
 	var predictPath string
-	var err error
 	if predictPath, Err = handle.um.PredictPng(c, account, predictPngName); Err.Code != consts.OperateSuccess {
-		log.Printf("Predict fail: %v", err)
+		log.Printf("Predict fail: %v", Err.Msg)
 		returnFail(c, Err)
 		return
 	}
@@ -191,7 +191,10 @@ func (handle *handleManager) PredictPng(c *gin.Context) {
 
 // RestoreMySQL 恢复数据库
 func (handle *handleManager) RestoreMySQL(c *gin.Context) {
-	utils.RestoreMySQL()
+	if Err := utils.RestoreMySQL(); Err.Code != consts.OperateSuccess {
+		returnFail(c, Err)
+	}
+	returnSuccess(c)
 }
 
 // UserLogin 用户登录处理接口
@@ -204,9 +207,9 @@ func (handle *handleManager) UserLogin(c *gin.Context) {
 		return
 	}
 
-	if err := handle.lm.UserLogin(c, account, password); err.Code != consts.OperateSuccess {
-		log.Printf("UserLogin fail: %s \terr: %v.", account, err)
-		returnFail(c, err)
+	if Err := handle.lm.UserLogin(c, account, password); Err.Code != consts.OperateSuccess {
+		log.Printf("UserLogin fail: %s \terr: %v.", account, Err)
+		returnFail(c, Err)
 		return
 	}
 	log.Printf("UserLogin success: %s", account)
@@ -226,9 +229,9 @@ func (handle *handleManager) UserRegister(c *gin.Context) {
 		return
 	}
 
-	if err := handle.lm.UserRegister(c, account, password, email, authCode, nickName); err.Code != consts.OperateSuccess {
+	if Err := handle.lm.UserRegister(c, account, password, email, authCode, nickName); Err.Code != consts.OperateSuccess {
 		log.Printf("UserRegister fail: %s \terr: %v.", account, err)
-		returnFail(c, err)
+		returnFail(c, Err)
 		return
 	}
 	log.Printf("UserRegister success: %s", account)
@@ -243,8 +246,8 @@ func (handle *handleManager) UploadPng(c *gin.Context) {
 		returnFail(c, Err)
 		return
 	}
-	if Err := handle.um.UploadPng(c, account); Err.Code != consts.OperateSuccess {
-		log.Printf("UploadFile fail: %s \terr: %v.", account, Err)
+	if Err = handle.um.UploadPng(c, account); Err.Code != consts.OperateSuccess {
+		log.Printf("UploadFile fail: %s \terr: %v.", account, Err.Msg)
 		returnFail(c, Err)
 		return
 	}
@@ -261,7 +264,7 @@ func (handle *handleManager) UploadAvatar(c *gin.Context) {
 		return
 	}
 	if Err = handle.um.UploadAvatar(c); Err.Code != consts.OperateSuccess {
-		log.Printf("UploadAvatar fail: %s \terr: %v.", user, Err)
+		log.Printf("UploadAvatar fail: %s \terr: %v.", user, Err.Msg)
 		returnFail(c, Err)
 		return
 	}
@@ -278,9 +281,9 @@ func (handle *handleManager) SendAuthCode(c *gin.Context) {
 		return
 	}
 
-	if err := handle.lm.SendAuthCode(c, email); err.Code != consts.OperateSuccess {
-		log.Printf("SendAuthCode fail: %s \terr: %v", email, err)
-		returnFail(c, err)
+	if Err := handle.lm.SendAuthCode(c, email); Err.Code != consts.OperateSuccess {
+		log.Printf("SendAuthCode fail: %s \terr: %v", email, Err.Msg)
+		returnFail(c, Err)
 		return
 	}
 	log.Printf("SendAuthCode success: %s", email)
@@ -301,10 +304,6 @@ func UploadFilePathCreate() (err error) {
 		log.Print("目录创建失败 ", err)
 		return err
 	}
-	// if err = os.MkdirAll(consts.DefaultMoviewPath, os.ModePerm); err != nil {
-	// 	log.Print("创建目录失败 ", err)
-	// 	return err
-	// }
 	return nil
 }
 
@@ -356,9 +355,13 @@ func verifyEmailFormat(email string) bool {
 }
 
 func returnSuccess(c *gin.Context) {
+	requestFuncName := c.Request.RequestURI[1:]
+	if index := strings.Index(requestFuncName, "?"); index != -1 {
+		requestFuncName = requestFuncName[:index]
+	}
 	c.JSON(http.StatusOK, model.Err{
 		Code: consts.OperateSuccess,
-		Msg:  consts.ErrCodeMessage[consts.OperateSuccess],
+		Msg:  requestFuncName + " " + consts.ErrCodeMessage[consts.OperateSuccess],
 	})
 }
 

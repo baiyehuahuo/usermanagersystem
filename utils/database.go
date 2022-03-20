@@ -9,6 +9,7 @@ import (
 	"strconv"
 	"strings"
 	"usermanagersystem/consts"
+	"usermanagersystem/model"
 
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -59,17 +60,23 @@ func BackupMySQL() {
 }
 
 // RestoreMySQL 恢复数据库
-func RestoreMySQL() {
+func RestoreMySQL() (Err model.Err) {
 	path, err := filepath.Abs(consts.MySQLBackUpPath)
 	if err != nil {
-		panic(err)
+		Err.Code = consts.SystemError
+		Err.Msg = ErrWrapOrWithMessage(true, err).Error()
+		return Err
 	}
 	file, err := ioutil.ReadFile(path)
 	if err != nil {
-		panic(err)
+		Err.Code = consts.SystemError
+		Err.Msg = ErrWrapOrWithMessage(true, err).Error()
+		return Err
 	}
 	restores := strings.Split(string(file), ";")
 	for _, restore := range restores {
 		db.Exec(restore)
 	}
+	Err.Code = consts.OperateSuccess
+	return Err
 }
