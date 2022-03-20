@@ -6,7 +6,6 @@ import (
 	"os"
 	"regexp"
 	"strconv"
-	"strings"
 	"usermanagersystem/consts"
 	"usermanagersystem/model"
 	"usermanagersystem/service/login_control"
@@ -355,13 +354,13 @@ func verifyEmailFormat(email string) bool {
 }
 
 func returnSuccess(c *gin.Context) {
-	requestFuncName := c.Request.RequestURI[1:]
-	if index := strings.Index(requestFuncName, "?"); index != -1 {
-		requestFuncName = requestFuncName[:index]
-	}
+	// requestFuncName := c.Request.RequestURI[1:]
+	// if index := strings.Index(requestFuncName, "?"); index != -1 {
+	// 	requestFuncName = requestFuncName[:index]
+	// }
 	c.JSON(http.StatusOK, model.Err{
 		Code: consts.OperateSuccess,
-		Msg:  requestFuncName + " " + consts.ErrCodeMessage[consts.OperateSuccess],
+		Msg:  consts.ErrCodeMessage[consts.OperateSuccess],
 	})
 }
 
