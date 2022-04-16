@@ -1,10 +1,10 @@
 package main
 
 import (
+	"github.com/gin-contrib/static"
 	"log"
 	"mime"
 	"os"
-	"time"
 	"usermanagersystem/consts"
 	"usermanagersystem/service/html_control"
 	"usermanagersystem/service/login_control"
@@ -52,15 +52,14 @@ func init() {
 	}
 
 	utils.EmailAuthCodeControllerCreate()
-	time.Sleep(time.Second * 15)
+	// time.Sleep(time.Second * 15)
 }
 
 func main() {
 	router := gin.Default()
 	router.Use(Cors())
 	htmlManager := html_control.New()
-	router.LoadHTMLGlob("templates/*")                                // html 文件
-	router.Static(consts.DefaultStaticPath, consts.DefaultStaticPath) // 静态文件映射
+	router.Use(static.Serve("/", static.LocalFile("./dist/", true)))
 	router.Static(consts.DefaultAvatarPath, consts.DefaultAvatarPath)
 	router.Static(consts.DefaultUserPngRootPath, consts.DefaultUserPngRootPath)
 	_ = mime.AddExtensionType(".js", "application/javascript")
@@ -85,6 +84,7 @@ func main() {
 	router.POST("/UploadAvatar", handle.UploadAvatar)
 	router.POST("/UploadPng", handle.UploadPng)
 	router.POST("/DeletePng", handle.DeletePng)
+
 	if err := os.MkdirAll(consts.DefaultAvatarPath, os.ModePerm); err != nil {
 		log.Fatal("目录创建失败 ", err)
 	}
@@ -92,5 +92,3 @@ func main() {
 		log.Fatal(err)
 	}
 }
-
-// todo rabbitmq与模型识别结合 减去加载模型的时间

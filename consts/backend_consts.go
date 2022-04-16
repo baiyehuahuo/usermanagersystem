@@ -12,7 +12,6 @@ const (
 	DefaultUserPngRootPath = "user_files"
 	DefaultUserPngPath     = DefaultUserPngRootPath + "/user_png"
 	DefaultAvatarPath      = "avatars"
-	DefaultStaticPath      = "static"
 	DefaultAvatarSuffix    = "avatar"
 
 	CookieNameOfUser            = "UserCookie"
@@ -22,7 +21,6 @@ const (
 	CookieValidationDomainLocal = "localhost"
 
 	RedisCookieHashPrefix        = "UserCookie_"
-	RedisAuthCodePrefix          = "AuthCode_" // 假如保存在redis的前缀名
 	RedisUserMessagePrefix       = "UserMessage_"
 	RedisUserMessageContinueTime = 30
 
@@ -30,7 +28,6 @@ const (
 	LogFilePath     = SystemLogPath + "/log.txt"
 	MySQLBackUpPath = SystemLogPath + "/mysql_backup.sql"
 
-	RabbitMQURL      = "amqp://guest:guest@localhost:5672/"
 	PredictQueueName = "PredictQueue"
 	ExchangeName     = "ResultExchange"
 	RouteType        = "fanout"

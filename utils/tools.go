@@ -20,7 +20,7 @@ func GetNetAvatarPath(account string, avatarExt string) string {
 	buffer := bytes.Buffer{}
 	buffer.WriteString(netPrefixPath())
 	if avatarExt == "" {
-		buffer.WriteString(consts.DefaultStaticPath)
+		buffer.WriteString(consts.DefaultAvatarPath)
 		buffer.WriteString("/default_avatar.jpg")
 		return buffer.String()
 	}
@@ -48,7 +48,7 @@ func GetLocalAvatarPath(account string, avatarExt string) string {
 	return buffer.String()
 }
 
-// GetNetUploadFilePath 获取文件的本地路径
+// GetLocalUploadFilePath 获取文件的本地路径
 func GetLocalUploadFilePath(account string, fileName string) string {
 	buffer := bytes.Buffer{}
 	buffer.WriteString(consts.DefaultUserPngPath)

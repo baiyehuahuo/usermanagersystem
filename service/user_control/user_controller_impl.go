@@ -92,12 +92,6 @@ func (uc *userControllerImpl) PredictPng(c *gin.Context, account string, pngName
 		return "", Err
 	}
 	filePath = filepath.Join(filePath, pngName)
-	// cmd := exec.Command("main.exe", filePath)
-	// if err := cmd.Run(); err != nil {
-	// 	Err.Code = consts.SystemError
-	// 	Err.Msg = utils.ErrWrapOrWithMessage(true, err).Error()
-	// 	return "", Err
-	// }
 	if err = requestPredictByRabbitMQ(filePath); err != nil {
 	}
 	if err = waitPredictByRabbitMQ(filePath); err != nil {
@@ -200,7 +194,7 @@ func (uc *userControllerImpl) UploadAvatar(c *gin.Context) (Err model.Err) {
 	return Err
 }
 
-// UploadFile 上传文件
+// UploadPng 上传png文件
 func (uc *userControllerImpl) UploadPng(c *gin.Context, account string) (Err model.Err) {
 	var file *multipart.FileHeader
 	var err error
@@ -228,7 +222,7 @@ func (uc *userControllerImpl) UploadPng(c *gin.Context, account string) (Err mod
 	return Err
 }
 
-// getAccount 通过cookie获取账户
+// GetAccountByCookie 通过cookie获取账户
 func (uc *userControllerImpl) GetAccountByCookie(c *gin.Context) (account string, Err model.Err) {
 	cookie, _ := c.Cookie(consts.CookieNameOfUser)
 	account, err := uc.rc.Get(consts.RedisCookieHashPrefix + cookie)
@@ -280,6 +274,7 @@ func requestPredictByRabbitMQ(predictPath string) (err error) {
 	if err = ch.Publish("", queue.Name, false, false, amqp.Publishing{ContentType: "text/plain", Body: []byte(predictPath)}); err != nil {
 		return err
 	}
+
 	return nil
 }
 
@@ -296,15 +291,16 @@ func waitPredictByRabbitMQ(predictPath string) (err error) {
 		return utils.ErrWrapOrWithMessage(true, err)
 	}
 	var msgs <-chan amqp.Delivery
-	if msgs, err = ch.Consume(queue.Name, "", true, false, true, false, nil); err != nil {
+	if msgs, err = ch.Consume(queue.Name, queue.Name, true, false, true, false, nil); err != nil {
 		return utils.ErrWrapOrWithMessage(true, err)
 	}
-	// fmt.Printf("%s is waiting\n", predictPath)
 	for msg := range msgs {
-		// fmt.Printf("%s goroutine get message: %s\n", predictPath, string(msg.Body))
 		if string(msg.Body) == predictPath {
 			break
 		}
+	}
+	if err = ch.Cancel(queue.Name, false); err != nil {
+		return err
 	}
 	return nil
 }
