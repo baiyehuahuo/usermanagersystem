@@ -52,7 +52,6 @@ func init() {
 	}
 
 	utils.EmailAuthCodeControllerCreate()
-	// time.Sleep(time.Second * 15)
 }
 
 func main() {
