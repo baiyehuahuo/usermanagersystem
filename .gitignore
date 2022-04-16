@@ -3,7 +3,8 @@
 main.exe
 my_model
 
-avatars/
+avatars/*
+!avatars/default_avatar.jpg
 test/
 systemLogs/
 user_files/
